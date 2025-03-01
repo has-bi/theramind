@@ -1,21 +1,34 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState, useRef } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
+=======
+import { useState } from "react";
+>>>>>>> 9b3e887 (feat: Implement interactive chatbot)
 
 export default function Journal() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+<<<<<<< HEAD
   const [isLoading, setIsLoading] = useState(false);
 
   const sendMessage = async (e) => {
     e?.preventDefault();
     if (!input.trim() || isLoading) return;
+=======
+
+  const sendMessage = async (e) => {
+    if (!input.trim()) return;
+>>>>>>> 9b3e887 (feat: Implement interactive chatbot)
 
     const newMessages = [...messages, { role: "user", content: input }];
     setMessages(newMessages);
     setInput("");
+<<<<<<< HEAD
     setIsLoading(true);
+=======
+>>>>>>> 9b3e887 (feat: Implement interactive chatbot)
 
     try {
       const res = await fetch("/api/chat", {
@@ -35,6 +48,7 @@ export default function Journal() {
         console.log(data.error);
       }
     } catch (error) {
+<<<<<<< HEAD
       setMessages([
         ...newMessages,
         { role: "error", content: "Failed to send message. Please try again." },
@@ -49,10 +63,14 @@ export default function Journal() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage;
+=======
+      console.log(error);
+>>>>>>> 9b3e887 (feat: Implement interactive chatbot)
     }
   };
 
   return (
+<<<<<<< HEAD
     <div className="mobile-container w-full max-w-md flex flex-col h-screen bg-white">
       {/* Header */}
       <header className="px-4 py-3  bg-white sticky top-0 z-10">
@@ -112,10 +130,32 @@ export default function Journal() {
       {/* Input Section */}
       <footer className="border-t border-gray-100 p-4 bg-white">
         <form onSubmit={sendMessage} className="relative">
+=======
+    <div className="min-h-screen p-8 bg-gray-100">
+      <div className="max-w-xl mx-auto bg-white p-6 rounded shadow">
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">Journal</h1>
+        <div className="space-y-4">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`p-3 rounded ${
+                msg.role === "user"
+                  ? "bg-blue-100 text-blue-900"
+                  : "bg-gray-100 text-gray-900"
+              }`}
+            >
+              <strong>{msg.role === "user" ? "You" : "Bot"}:</strong>{" "}
+              {msg.content}
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex text-gray-800">
+>>>>>>> 9b3e887 (feat: Implement interactive chatbot)
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+<<<<<<< HEAD
             onKeyDown={handleKeyDown}
             placeholder="Write your thoughts..."
             className={`input-field pr-12 ${isLoading ? "input-disabled" : ""}`}
@@ -133,6 +173,20 @@ export default function Journal() {
           </button>
         </form>
       </footer>
+=======
+            placeholder="Type your message..."
+            className="flex-1 p-2 border-gray-300 rounded-l"
+          />
+          <button
+            onClick={sendMessage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-r"
+          >
+            {" "}
+            Send{" "}
+          </button>
+        </div>
+      </div>
+>>>>>>> 9b3e887 (feat: Implement interactive chatbot)
     </div>
   );
 }
