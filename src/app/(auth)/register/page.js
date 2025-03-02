@@ -8,11 +8,11 @@ export default function page() {
   return (
     <div>
       <form action={registerAction}>
-        <input name="firstname" placeholder="firstname" />
-        <input name="lastname" placeholder="lastname" />
+        <input name="firstname" placeholder="first name" />
+        <input name="lastname" placeholder="last name" />
         <input name="email" type="email" placeholder="email" />
         <input name="password" type="password" placeholder="password" />
-        <button type="submit">Register</button>
+        <button>Register</button>
       </form>
     </div>
   )
