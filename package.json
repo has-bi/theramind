@@ -11,17 +11,22 @@
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
+<<<<<<< HEAD
     "bcrypt": "^5.1.1",
+=======
+    "@tailwindcss/vite": "^4.0.9",
+>>>>>>> 058b20ff009b5f1bf2885f6f4d110a211603bcf3
     "next": "15.2.0",
+    "postcss": "^8.5.3",
     "prisma": "^6.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.0.9",
     "eslint": "^9",
     "eslint-config-next": "15.2.0",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4.0.9"
   }
 }
