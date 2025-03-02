@@ -34,13 +34,13 @@ export default function page() {
               />
             </div>
           </div>
+          {!state?.success && <div>{state?.message}</div>}
           <button
             disabled={pending}
             className="w-full bg-indigo-600 text-white rounded-lg py-3 font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Login
           </button>
-          {!state?.success && <div>{state?.message}</div>}
         </form>
 
         <div className="relative">
