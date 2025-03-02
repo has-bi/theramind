@@ -3,6 +3,7 @@
 import { prisma } from '@/utils/prisma'
 import bcrypt from 'bcrypt'
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
 export async function loginAction(_, formData) {
   const cookieStore = await cookies()
@@ -52,8 +53,5 @@ export async function loginAction(_, formData) {
     expires: newSession.expires,
   })
 
-  return {
-    success: true,
-    message: 'login successful!',
-  }
+  redirect('/dashboard')
 }
