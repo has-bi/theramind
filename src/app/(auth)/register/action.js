@@ -1,5 +1,8 @@
 'use server'
 
+import { prisma } from '@/utils/prisma'
+import bcrypt from 'bcrypt'
+
 export async function registerAction(_, formData) {
   try {
     const firstName = await formData.get('firstname')
@@ -7,11 +10,18 @@ export async function registerAction(_, formData) {
     const email = await formData.get('email')
     const password = await formData.get('password')
 
-    if (!firstName || !lastName || !email || !password) {
-      throw new Error('Missing form data fields')
-    }
+    const hashedPassword = await bcrypt.hash(password, 12)
 
-    console.log({ firstName, lastName, email, password })
+    const user = await prisma.user.create({
+      data: {
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+      },
+    })
+
+    console.log({ firstName, lastName, email, password, hashedPassword })
   } catch (error) {
     console.error('Error reading form data:', error)
   }
