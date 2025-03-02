@@ -68,7 +68,7 @@ export default function page() {
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">
-              Min 8 characters, including letters, numbers and special characters
+              Min 8 characters, including letters and numbers
             </p>
           </div>
           {!state?.success && <div>{state?.message}</div>}
