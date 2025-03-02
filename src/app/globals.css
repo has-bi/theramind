@@ -4,20 +4,11 @@
   --font-sans: var(--font-plus-jakarta);
 }
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  input {
+    @apply p-2 rounded-lg shadow-sm border;
   }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  button {
+    @apply p-2 rounded-lg bg-black text-white font-medium shadow-sm;
+  }
 }
