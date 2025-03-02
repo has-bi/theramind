@@ -1,15 +1,21 @@
 "use client";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useState, useRef } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 =======
 import { useState } from "react";
 >>>>>>> 9b3e887 (feat: Implement interactive chatbot)
+=======
+import { useState, useRef } from "react";
+import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
 
 export default function Journal() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+<<<<<<< HEAD
 <<<<<<< HEAD
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,14 +27,25 @@ export default function Journal() {
   const sendMessage = async (e) => {
     if (!input.trim()) return;
 >>>>>>> 9b3e887 (feat: Implement interactive chatbot)
+=======
+  const [isLoading, setIsLoading] = useState(false);
+
+  const sendMessage = async (e) => {
+    e?.preventDefault();
+    if (!input.trim() || isLoading) return;
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
 
     const newMessages = [...messages, { role: "user", content: input }];
     setMessages(newMessages);
     setInput("");
 <<<<<<< HEAD
+<<<<<<< HEAD
     setIsLoading(true);
 =======
 >>>>>>> 9b3e887 (feat: Implement interactive chatbot)
+=======
+    setIsLoading(true);
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
 
     try {
       const res = await fetch("/api/chat", {
@@ -49,6 +66,9 @@ export default function Journal() {
       }
     } catch (error) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
       setMessages([
         ...newMessages,
         { role: "error", content: "Failed to send message. Please try again." },
@@ -63,14 +83,20 @@ export default function Journal() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage;
+<<<<<<< HEAD
 =======
       console.log(error);
 >>>>>>> 9b3e887 (feat: Implement interactive chatbot)
+=======
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
     }
   };
 
   return (
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
     <div className="mobile-container w-full max-w-md flex flex-col h-screen bg-white">
       {/* Header */}
       <header className="px-4 py-3  bg-white sticky top-0 z-10">
@@ -88,6 +114,7 @@ export default function Journal() {
               <p className="text-sm text-gray-400">
                 Start writing your thoughts below
               </p>
+<<<<<<< HEAD
             </div>
           </div>
         ) : (
@@ -151,15 +178,63 @@ export default function Journal() {
         </div>
         <div className="mt-4 flex text-gray-800">
 >>>>>>> 9b3e887 (feat: Implement interactive chatbot)
+=======
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3 pb-4 mt-auto">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-xs rounded-xl px-4 py-3 ${
+                    msg.role === "user"
+                      ? "bg-indigo-700 text-white rounded-tr-none"
+                      : msg.role === "error"
+                      ? "bg-red-100 text-red-800 rounded-tl-none"
+                      : "bg-gray-100 text-gray-800 rounded-tl-none"
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 rounded-xl rounded-tl-none px-4 py-3">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-150"></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-300"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Input Section */}
+      <footer className="border-t border-gray-100 p-4 bg-white">
+        <form onSubmit={sendMessage} className="relative">
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
             onKeyDown={handleKeyDown}
             placeholder="Write your thoughts..."
             className={`input-field pr-12 ${isLoading ? "input-disabled" : ""}`}
             disabled={isLoading}
+<<<<<<< HEAD
           />
           <button
             type="submit"
@@ -176,17 +251,27 @@ export default function Journal() {
 =======
             placeholder="Type your message..."
             className="flex-1 p-2 border-gray-300 rounded-l"
+=======
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
           />
           <button
-            onClick={sendMessage}
-            className="px-4 py-2 bg-blue-500 text-white rounded-r"
+            type="submit"
+            className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-indigo-700 hover:text-indigo-900 ${
+              !input.trim() || isLoading ? "opacity-50" : ""
+            }`}
+            disabled={!input.trim() || isLoading}
+            aria-label="Send message"
           >
-            {" "}
-            Send{" "}
+            <ArrowUpCircleIcon className="size-6 text-indigo-500" />
           </button>
+<<<<<<< HEAD
         </div>
       </div>
 >>>>>>> 9b3e887 (feat: Implement interactive chatbot)
+=======
+        </form>
+      </footer>
+>>>>>>> 3a1e37e (feat: add styling for interactive chatbot to have chat input, chat bubble, and add icons)
     </div>
   );
 }
