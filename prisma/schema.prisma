@@ -33,7 +33,7 @@ model Session {
   id        String   @id @default(uuid()) @map("id")
   userId    String   @map("userId")
   expires   DateTime
-  data      String
+  data      String?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

@@ -72,7 +72,6 @@ export default function page() {
             </p>
           </div>
           {!state?.success && <div>{state?.message}</div>}
-          {state?.success && <div>{state?.message}</div>}
           <button
             disabled={pending}
             className="w-full bg-indigo-600 text-white rounded-lg py-3 font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
