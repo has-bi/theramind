@@ -1,3 +1,3 @@
 export default async function Page() {
-  return <div>Temporary Dashboard Page</div>
+  return <div>Temporary (protected) Dashboard Page</div>;
 }
