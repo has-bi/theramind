@@ -1,7 +1,6 @@
 "use client";
 import { useActionState } from "react";
 import { loginAction } from "./action";
-import Image from "next/image";
 import { OauthButton } from "../_components/oauthbutton";
 
 export default function Page() {
