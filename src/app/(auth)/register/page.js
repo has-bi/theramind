@@ -1,9 +1,9 @@
-'use client'
-import { useActionState } from 'react'
-import { registerAction } from './action'
+"use client";
+import { useActionState } from "react";
+import { registerAction } from "./action";
 
-export default function page() {
-  const [state, formAction, pending] = useActionState(registerAction, null)
+export default function Page() {
+  const [state, formAction, pending] = useActionState(registerAction, null);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -80,12 +80,12 @@ export default function page() {
           </button>
         </form>
         <p className="text-center text-sm text-gray-600">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-700">
             Login
           </a>
         </p>
       </div>
     </div>
-  )
+  );
 }

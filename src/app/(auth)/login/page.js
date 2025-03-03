@@ -1,9 +1,10 @@
-'use client'
-import { useActionState } from 'react'
-import { loginAction } from './action'
+"use client";
+import { useActionState } from "react";
+import { loginAction } from "./action";
+import Image from "next/image";
 
-export default function page() {
-  const [state, formAction, pending] = useActionState(loginAction, null)
+export default function Page() {
+  const [state, formAction, pending] = useActionState(loginAction, null);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -52,17 +53,17 @@ export default function page() {
           </div>
         </div>
         <button className="w-full flex items-center justify-center gap-2 border rounded-lg py-3 hover:bg-gray-50">
-          <img src="/google.svg" alt="Google" className="w-5 h-5" />
+          <Image src="/google.svg" alt="Google" className="w-5 h-5" />
           component login will be here
         </button>
 
         <p className="text-center text-sm text-gray-600">
-          not have an account?{' '}
+          not have an account?{" "}
           <a href="/register" className="font-medium text-indigo-600 hover:text-indigo-700">
             Register
           </a>
         </p>
       </div>
     </div>
-  )
+  );
 }
