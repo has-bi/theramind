@@ -1,6 +1,7 @@
 "use client";
 import { useActionState } from "react";
 import { registerAction } from "./action";
+import { OauthButton } from "../_components/oauthbutton";
 
 export default function Page() {
   const [state, formAction, pending] = useActionState(registerAction, null);
@@ -13,20 +14,6 @@ export default function Page() {
           <p className="text-sm text-gray-600 mt-2">
             Sign up using the form, or your google account
           </p>
-        </div>
-
-        <button className="w-full flex items-center justify-center gap-2 border rounded-lg py-3 hover:bg-gray-50">
-          <img src="/google.svg" alt="Google" className="w-5 h-5" />
-          later login with google here
-        </button>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">or</span>
-          </div>
         </div>
 
         <form action={formAction} className="space-y-4">
@@ -79,6 +66,17 @@ export default function Page() {
             Register
           </button>
         </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">or</span>
+          </div>
+        </div>
+
+        <OauthButton />
         <p className="text-center text-sm text-gray-600">
           Already have an account?{" "}
           <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-700">
