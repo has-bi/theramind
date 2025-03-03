@@ -2,6 +2,7 @@
 import { useActionState } from "react";
 import { loginAction } from "./action";
 import Image from "next/image";
+import { OauthButton } from "../_components/oauthbutton";
 
 export default function Page() {
   const [state, formAction, pending] = useActionState(loginAction, null);
@@ -52,10 +53,7 @@ export default function Page() {
             <span className="px-2 bg-white text-gray-500">or</span>
           </div>
         </div>
-        <button className="w-full flex items-center justify-center gap-2 border rounded-lg py-3 hover:bg-gray-50">
-          <Image src="/google.svg" alt="Google" className="w-5 h-5" />
-          component login will be here
-        </button>
+        <OauthButton />
 
         <p className="text-center text-sm text-gray-600">
           not have an account?{" "}
