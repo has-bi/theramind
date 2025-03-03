@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 
 export async function validateSession() {
   const cookieStore = cookies();
-  const sessionId = cookieStore.get("sessionId")?.value;
+  const sessionId = await cookieStore.get("sessionId")?.value;
 
   if (sessionId) {
     const session = await prisma.session.findUnique({
