@@ -1,4 +1,4 @@
-"use client"; // For Next.js
+"use client";
 
 import React from "react";
 import { useState, useActionState } from "react";
@@ -8,7 +8,6 @@ export const EmojiForm = () => {
   const [selectedEmotion, setSelectedEmotion] = useState(null);
   const [state, formAction, pending] = useActionState(createMoodAction, null);
 
-  // Daftar emosi dengan emoji yang sesuai
   const emotions = [
     { id: "happy", label: "Happy", emoji: "😊", value: "Happy" },
     { id: "sad", label: "Sad", emoji: "😢", value: "Sad" },
@@ -22,12 +21,10 @@ export const EmojiForm = () => {
     { id: "confused", label: "Confused", emoji: "😕", value: "Confused" },
   ];
 
-  // Fungsi untuk menangani pemilihan emosi
   const handleEmotionClick = (emotion) => {
     setSelectedEmotion(emotion);
   };
 
-  // Implementasi form action dengan useActionState
   const handleFormAction = (formData) => {
     if (selectedEmotion) {
       formData.set("emotionId", selectedEmotion.id);
@@ -84,18 +81,6 @@ export const EmojiForm = () => {
           {pending ? "Submitting..." : "Next"}
         </button>
       </form>
-
-      {state && state.error && (
-        <div className="mt-4 p-2 bg-red-100 text-red-600 rounded-lg">
-          {state.error}
-        </div>
-      )}
-
-      {state && state.success && (
-        <div className="mt-4 p-2 bg-green-100 text-green-600 rounded-lg">
-          Mood submitted successfully!
-        </div>
-      )}
     </div>
   );
 };
