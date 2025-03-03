@@ -10,7 +10,10 @@
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
     "@prisma/client": "^6.4.1",
+    "emoji-mart": "^5.6.0",
+    "emoji-picker-element": "^1.26.1",
     "next": "15.2.0",
     "prisma": "^6.4.1",
     "react": "^19.0.0",
