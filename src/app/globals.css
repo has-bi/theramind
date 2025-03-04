@@ -1,23 +1,115 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+.emoji {
+  height: 1em;
+  width: 1em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
 
 @theme {
   --font-sans: var(--font-plus-jakarta);
 }
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+html,
+body {
+  @apply flex justify-center bg-gray-50 min-h-screen;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Mobile container styles */
+.mobile-container {
+  margin: 0 auto;
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+@media (min-width: 480px) {
+  .mobile-container {
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* Button and Input Components */
+@layer components {
+  /* Primary Button */
+  .btn-primary {
+    @apply w-full py-3 rounded-xl font-medium text-sm text-center transition-colors bg-indigo-700 text-white;
+  }
+
+  .btn-primary:hover {
+    @apply bg-indigo-800;
+  }
+
+  .btn-primary:focus {
+    @apply outline-none ring-1 ring-indigo-500;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply w-full py-3 rounded-xl font-medium text-center text-sm transition-colors bg-indigo-200 text-indigo-800;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-indigo-300;
+  }
+
+  .btn-secondary:focus {
+    @apply outline-none ring-1 ring-indigo-400;
+  }
+
+  /* Tertiary Button */
+  .btn-tertiary {
+    @apply w-full py-3 rounded-xl font-medium text-center text-sm transition-colors bg-indigo-900 text-white;
+  }
+
+  .btn-tertiary:hover {
+    @apply bg-indigo-950;
+  }
+
+  .btn-tertiary:focus {
+    @apply outline-none ring-1 ring-indigo-700;
+  }
+
+  /* Disabled state for buttons */
+  .btn-disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Input Component */
+
+  .input-field {
+    @apply w-full py-3 px-4 rounded-xl border border-gray-200 bg-gray-50 transition-all text-gray-800 placeholder-gray-400;
+  }
+
+  .input-field:focus {
+    @apply outline-none ring-0 ring-indigo-500 border-indigo-500;
+  }
+
+  .input-error {
+    @apply border-red-500;
+  }
+
+  .input-disabled {
+    @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+  }
+
+  /* Form Label */
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .form-group {
+    @apply mb-4;
+  }
+
+  /* Error Message */
+  .error-text {
+    @apply mt-1 text-sm text-red-500;
+  }
 }
