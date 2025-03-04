@@ -1,4 +1,4 @@
-import ProfilePage from "./_components/profile-mood";
+import ProfilePage from "@/app/_components/profile-mood";
 
 export default function Home() {
   return (

@@ -1,37 +1,50 @@
 "use client";
-import { useState } from "react";
-import { format, startOfWeek, addDays, isBefore } from "date-fns";
+import { useEffect, useState } from "react";
+import { format, startOfWeek, addDays } from "date-fns";
 import { UserIcon, BellIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { PencilSquareIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 
 export default function ProfilePage() {
+  const [user, setUser] = useState(null);
+  const [moods, setMoods] = useState([]);
   const [activeTab, setActiveTab] = useState("my");
 
-  // Data pengguna
-  const user = {
-    fullName: "Wilgan Fauzan",
-    username: "wwiiii123",
-    email: "showemail@gmail.com",
-    age: 27,
-    gender: "Male",
-  };
+  useEffect(() => {
+    // Fetch data user
+    fetch("/api/user")
+      .then((res) => res.json())
+      .then((data) => setUser(data[0])) // Ambil user pertama
+      .catch((err) => console.error(err));
 
-  // Menghitung minggu ini secara dinamis
+    // Fetch data mood
+    fetch("/api/mood")
+      .then((res) => res.json())
+      .then((data) => setMoods(data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  if (!user) return <p>Loading...</p>;
+
+  // Hitung Mood Statistik
+  const moodStats = moods.reduce((acc, mood) => {
+    acc[mood.emotion.name] = (acc[mood.emotion.name] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Generate Kalender Mood Streak
   const today = new Date();
   const startWeek = startOfWeek(today, { weekStartsOn: 1 });
-  const moodStats = {
-    Happy: 12,
-    Sad: 5,
-    Angry: 3,
-  };
-
-  const moods = ["Happy", "Sad", "Angry"];
   const moodWeek = Array.from({ length: 7 }, (_, i) => {
     const date = addDays(startWeek, i);
+    const mood = moods.find(
+      (m) =>
+        format(new Date(m.createdAt), "yyyy-MM-dd") ===
+        format(date, "yyyy-MM-dd")
+    );
     return {
       day: format(date, "EEE"),
       date: format(date, "MMM d"),
-      mood: isBefore(date, today) ? moods[i % moods.length] : "",
+      mood: mood ? mood.emotion.name : "",
     };
   });
 
@@ -41,23 +54,9 @@ export default function ProfilePage() {
       <div className="bg-white p-6 text-center shadow-md">
         <UserCircleIcon className="h-20 w-20 mx-auto text-gray-500" />
         <h2 className="text-lg font-semibold mt-2 text-black">
-          {user.fullName}
+          {user.firstName} {user.lastName}
         </h2>
-        <p className="text-gray-500 text-sm">@{user.username}</p>
-      </div>
-
-      {/* User Details */}
-      <div className="bg-white p-4 rounded-lg shadow-md mx-4 mt-4 relative">
-        <DetailItem label="Full Name" value={user.fullName} />
-        <DetailItem label="Email" value={user.email} />
-        <DetailItem label="Username" value={user.username} />
-        <DetailItem label="Age" value={user.age} />
-        <DetailItem label="Gender" value={user.gender} />
-        <div>
-          <button className="mt-3 ml-80 w-6 h-6 text-black">
-            <PencilSquareIcon className="h-5 w-5" />
-          </button>
-        </div>
+        <p className="text-gray-500 text-sm">@{user.email}</p>
       </div>
 
       {/* Mood Card */}
@@ -111,8 +110,8 @@ export default function ProfilePage() {
         <NavItem
           title="My Profile"
           Icon={UserIcon}
-          active={activeTab === "my profile"}
-          onClick={() => setActiveTab("my profile")}
+          active={activeTab === "my"}
+          onClick={() => setActiveTab("my")}
         />
       </div>
     </div>
@@ -130,12 +129,4 @@ const NavItem = ({ title, Icon, active, onClick }) => (
     <Icon className="h-6 w-6" />
     <span className="text-xs mt-1">{title}</span>
   </button>
-);
-
-// Komponen untuk Detail Informasi Pengguna
-const DetailItem = ({ label, value }) => (
-  <div className="flex justify-between py-2 border-b">
-    <span className="text-gray-500 font-medium">{label}</span>
-    <span className="text-gray-700">{value}</span>
-  </div>
 );
