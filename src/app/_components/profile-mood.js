@@ -57,6 +57,9 @@ export default function ProfilePage() {
           {user.firstName} {user.lastName}
         </h2>
         <p className="text-gray-500 text-sm">@{user.email}</p>
+        <button className="mt-3 ml-80 w-6 h-6 text-black">
+          <PencilSquareIcon className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Mood Card */}
