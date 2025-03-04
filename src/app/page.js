@@ -50,7 +50,6 @@ export default function ProfilePage() {
         <DetailItem label="Username" value={user.username} />
         <DetailItem label="Age" value={user.age} />
         <DetailItem label="Gender" value={user.gender} />
-        <DetailItem label="Mood Streak" value={`${user.moodStreak} days`} />
       </div>
 
       {/* Mood Card */}
