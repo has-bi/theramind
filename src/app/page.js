@@ -8,9 +8,9 @@ export default function ProfilePage() {
 
   // Data pengguna
   const user = {
-    fullName: "Justin Smith",
-    username: "justinisfine123",
-    email: "justin.smith@email.com",
+    fullName: "Wilgan Fauzan",
+    username: "wwiiii123",
+    email: "showemail@gmail.com",
     age: 27,
     gender: "Male",
   };
