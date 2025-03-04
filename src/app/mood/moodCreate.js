@@ -20,14 +20,14 @@ export const EmojiForm = () => {
     { id: "tired", label: "Tired", emoji: "😴", value: "Tired" },
     { id: "confused", label: "Confused", emoji: "😕", value: "Confused" },
     { id: "grateful", label: "Gratefull", emoji: "😇", value: "Grateful" },
-    { id: "love", label: "love", emoji: "🥰", value: "love" },
+    { id: "love", label: "love", emoji: "🥰", value: "Love" },
   ];
 
-  const handleEmotionClick = (emotion) => {
+  const handleEmotionClick = emotion => {
     setSelectedEmotion(emotion);
   };
 
-  const handleFormAction = (formData) => {
+  const handleFormAction = formData => {
     if (selectedEmotion) {
       formData.set("emotionId", selectedEmotion.id);
       formData.set("label", selectedEmotion.label);
@@ -50,7 +50,7 @@ export const EmojiForm = () => {
         <input type="hidden" name="emoticon" value={selectedEmotion?.value} />
 
         <div className="grid grid-cols-3 gap-6">
-          {emotions.map((emotion) => (
+          {emotions.map(emotion => (
             <div
               key={emotion.id}
               onClick={() => handleEmotionClick(emotion)}
@@ -62,9 +62,7 @@ export const EmojiForm = () => {
               data-value={emotion.value}
             >
               <span className="text-3xl mb-2">{emotion.emoji}</span>
-              <span className="text-gray-800 text-sm text-center">
-                {emotion.label}
-              </span>
+              <span className="text-gray-800 text-sm text-center">{emotion.label}</span>
             </div>
           ))}
         </div>
@@ -73,11 +71,7 @@ export const EmojiForm = () => {
           type="submit"
           disabled={!selectedEmotion || pending}
           className={`w-full py-2 px-4 text-white font-semibold rounded-lg transition-colors 
-            ${
-              pending
-                ? "bg-blue-300 cursor-not-allowed"
-                : "bg-indigo-500 hover:bg-indigo-600"
-            } 
+            ${pending ? "bg-blue-300 cursor-not-allowed" : "bg-indigo-700 hover:bg-indigo-800"} 
             ${!selectedEmotion ? "bg-blue-300 cursor-not-allowed" : ""}`}
         >
           {pending ? "Submitting..." : "Next"}

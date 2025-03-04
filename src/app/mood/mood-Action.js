@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function createMoodAction(_, formData) {
   // const userId = formData.get("title");
-  const emotionId = Number(formData.get("emoticon"));
+  const emoticonId = formData.get("emoticon");
   //   const category = formData.get("category");
 
   //   await fetch("https://v1.appbackend.io/v1/rows/Ue6Yyc5VevV4", {
@@ -16,5 +17,6 @@ export async function createMoodAction(_, formData) {
   //   });
 
   //   revalidatePath("/");
-  console.log(emotionId);
+  console.log(emoticonId);
+  redirect("/journal");
 }
