@@ -23,7 +23,7 @@ export async function validateSession() {
     });
 
     if (session) {
-      redirect("/dashboard");
+      redirect("/emotion");
     }
   }
 }
@@ -76,5 +76,5 @@ export async function loginAction(_, formData) {
     expires: newSession.expires,
   });
 
-  redirect("/dashboard");
+  redirect("/emotion");
 }
