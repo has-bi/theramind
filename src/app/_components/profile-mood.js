@@ -109,10 +109,10 @@ export default function ProfilePage() {
           onClick={() => setActiveTab("notification")}
         />
         <NavItem
-          title="MY"
+          title="My Profile"
           Icon={UserIcon}
-          active={activeTab === "my"}
-          onClick={() => setActiveTab("my")}
+          active={activeTab === "my profile"}
+          onClick={() => setActiveTab("my profile")}
         />
       </div>
     </div>
