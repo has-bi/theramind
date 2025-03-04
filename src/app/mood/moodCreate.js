@@ -9,18 +9,18 @@ export const EmojiForm = () => {
   const [state, formAction, pending] = useActionState(createMoodAction, null);
 
   const emotions = [
-    { id: "happy", label: "Happy", emoji: "😊", value: "Happy" },
-    { id: "sad", label: "Sad", emoji: "😢", value: "Sad" },
-    { id: "calm", label: "Calm", emoji: "😌", value: "Calm" },
-    { id: "angry", label: "Angry", emoji: "😠", value: "Angry" },
-    { id: "anxious", label: "Anxious", emoji: "😰", value: "Anxious" },
-    { id: "neutral", label: "Neutral", emoji: "😐", value: "Neutral" },
-    { id: "stressed", label: "Stressed", emoji: "😩", value: "Stressed" },
-    { id: "excited", label: "Excited", emoji: "🤩", value: "Excited" },
-    { id: "tired", label: "Tired", emoji: "😴", value: "Tired" },
-    { id: "confused", label: "Confused", emoji: "😕", value: "Confused" },
-    { id: "grateful", label: "Gratefull", emoji: "😇", value: "Grateful" },
-    { id: "love", label: "love", emoji: "🥰", value: "Love" },
+    { id: 1, label: "Happy", emoji: "😊", value: "Happy" },
+    { id: 2, label: "Sad", emoji: "😢", value: "Sad" },
+    { id: 3, label: "Calm", emoji: "😌", value: "Calm" },
+    { id: 4, label: "Angry", emoji: "😠", value: "Angry" },
+    { id: 5, label: "Anxious", emoji: "😰", value: "Anxious" },
+    { id: 6, label: "Neutral", emoji: "😐", value: "Neutral" },
+    { id: 7, label: "Stressed", emoji: "😩", value: "Stressed" },
+    { id: 8, label: "Excited", emoji: "🤩", value: "Excited" },
+    { id: 9, label: "Tired", emoji: "😴", value: "Tired" },
+    { id: 10, label: "Confused", emoji: "😕", value: "Confused" },
+    { id: 12, label: "Gratefull", emoji: "😇", value: "Grateful" },
+    { id: 11, label: "Loved", emoji: "🥰", value: "Loved" },
   ];
 
   const handleEmotionClick = emotion => {
@@ -41,15 +41,15 @@ export const EmojiForm = () => {
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-indigo-600 text-2xl font-bold mb-4 text-center">
+      <h2 className="text-indigo-600 text-2xl font-bold mb-4 text-center p-6">
         How are you feeling today?
       </h2>
 
       <form action={handleFormAction} className="space-y-6">
         <input type="hidden" name="userId" value={selectedEmotion?.id || ""} />
-        <input type="hidden" name="emoticon" value={selectedEmotion?.value} />
+        <input type="hidden" name="emotionId" value={selectedEmotion?.id || ""} />
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-6 pb-12">
           {emotions.map(emotion => (
             <div
               key={emotion.id}
