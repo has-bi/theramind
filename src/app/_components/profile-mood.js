@@ -1,29 +1,33 @@
-"use client";
-import { useEffect, useState } from "react";
-import { format, startOfWeek, addDays } from "date-fns";
+import { format, addDays, startOfWeek, endOfWeek, getDate } from "date-fns";
 import { UserIcon, BellIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { PencilSquareIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { prisma } from "../utils/prisma";
 
-export default function ProfilePage() {
-  const [user, setUser] = useState(null);
-  const [moods, setMoods] = useState([]);
-  const [activeTab, setActiveTab] = useState("my");
+export default async function ProfilePage() {
+  const users = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
 
-  useEffect(() => {
-    // Fetch data user
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((data) => setUser(data[0])) // Ambil user pertama
-      .catch((err) => console.error(err));
+  const emotions = await prisma.emotion.findUnique({
+    where: {
+      id,
+    },
+  });
 
-    // Fetch data mood
-    fetch("/api/mood")
-      .then((res) => res.json())
-      .then((data) => setMoods(data))
-      .catch((err) => console.error(err));
-  }, []);
-
-  if (!user) return <p>Loading...</p>;
+  const moods = await prisma.moodEntry.findMany({
+    where: {
+      userId: userId,
+      createdAt: {
+        gte: startOfWeek(new Date(), { weekStartsOn: 1 }),
+        lte: endOfWeek(new Date(), { weekStartsOn: 1 }),
+      },
+    },
+    include: {
+      emotion: true,
+    },
+  });
 
   // Hitung Mood Statistik
   const moodStats = moods.reduce((acc, mood) => {
@@ -32,19 +36,15 @@ export default function ProfilePage() {
   }, {});
 
   // Generate Kalender Mood Streak
-  const today = new Date();
-  const startWeek = startOfWeek(today, { weekStartsOn: 1 });
   const moodWeek = Array.from({ length: 7 }, (_, i) => {
-    const date = addDays(startWeek, i);
+    const date = addDays(startOfWeek, i);
     const mood = moods.find(
-      (m) =>
-        format(new Date(m.createdAt), "yyyy-MM-dd") ===
-        format(date, "yyyy-MM-dd")
+      (m) => format(m.createdAt, "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
     );
     return {
       day: format(date, "EEE"),
       date: format(date, "MMM d"),
-      mood: mood ? mood.emotion.name : "",
+      mood: mood?.emotion?.name ?? "",
     };
   });
 
@@ -54,9 +54,9 @@ export default function ProfilePage() {
       <div className="bg-white p-6 text-center shadow-md">
         <UserCircleIcon className="h-20 w-20 mx-auto text-gray-500" />
         <h2 className="text-lg font-semibold mt-2 text-black">
-          {user.firstName} {user.lastName}
+          {users.firstName} {users.lastName}
         </h2>
-        <p className="text-gray-500 text-sm">@{user.email}</p>
+        <p className="text-gray-500 text-sm">@{users.email}</p>
         <button className="mt-3 ml-80 w-6 h-6 text-black">
           <PencilSquareIcon className="h-5 w-5" />
         </button>
@@ -98,24 +98,9 @@ export default function ProfilePage() {
 
       {/* Bottom Navigation */}
       <div className="bg-white shadow-lg fixed bottom-0 w-full flex justify-around py-3">
-        <NavItem
-          title="Home"
-          Icon={HomeIcon}
-          active={activeTab === "home"}
-          onClick={() => setActiveTab("home")}
-        />
-        <NavItem
-          title="Notification"
-          Icon={BellIcon}
-          active={activeTab === "notification"}
-          onClick={() => setActiveTab("notification")}
-        />
-        <NavItem
-          title="My Profile"
-          Icon={UserIcon}
-          active={activeTab === "my"}
-          onClick={() => setActiveTab("my")}
-        />
+        <NavItem title="Home" Icon={HomeIcon} />
+        <NavItem title="Notification" Icon={BellIcon} />
+        <NavItem title="My Profile" Icon={UserIcon} />
       </div>
     </div>
   );
