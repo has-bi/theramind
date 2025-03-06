@@ -6,7 +6,7 @@ export default async function Page({ params }) {
     // ambil post dari folder konten (`src/app/(mainapp)/blog/[slug]/content/${slug}.mdx`)
     const Post = (await import(`../content/${slug}.mdx`)).default;
     return (
-      <article className="prose mx-auto p-4">
+      <article className="prose max-w-screen p-4">
         <Post />
       </article>
     );

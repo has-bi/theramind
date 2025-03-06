@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Layout({ children }) {
   return (
-    <main className="max-w-4xl m-auto my-12">
+    <main className="max-w-screen mx-auto my-12">
       <Link
         href="/blog"
         className="mb-12 hover:text-white text-sm font-medium tracking-tight flex gap-4 items-center transition duration-200"
@@ -24,7 +24,7 @@ export default function Layout({ children }) {
             />
           </g>
         </svg>
-        Back to Home
+        Back to Blog List
       </Link>
       <div className="space-y-8 leading-7">{children}</div>
     </main>
