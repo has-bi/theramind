@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Layout({ children }) {
   return (
-    <main className="max-w-screen mx-auto my-12">
+    <main className="mobile-container w-full max-w-[480px] bg-white min-h-screen p-4">
       <Link
         href="/blog"
         className="mb-12 hover:text-white text-sm font-medium tracking-tight flex gap-4 items-center transition duration-200"
