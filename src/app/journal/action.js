@@ -131,7 +131,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
         <div>
           <h1 className="text-lg font-semibold text-gray-800">Mindly Chatbot</h1>
           {emotionContext && (
-            <p className="text-sm text-gray-600">Today's Emotion: {emotionContext}</p>
+            <p className="text-sm text-gray-600">Today Emotion: {emotionContext}</p>
           )}
         </div>
         <div className="flex space-x-2">
