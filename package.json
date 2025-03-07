@@ -24,7 +24,6 @@
     "next-mdx-remote": "^5.0.0",
     "openai": "^4.86.1",
     "postcss": "^8.5.3",
-    "prisma": "^6.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "remark-frontmatter": "^5.0.0",
