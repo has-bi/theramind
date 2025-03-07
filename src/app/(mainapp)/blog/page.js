@@ -17,7 +17,7 @@ export default function BlogIndex() {
       slug: filename.replace(".mdx", ""),
       title: filename.replace(".mdx", "").split("-").join(" "),
     }));
-  //test rebuild
+  //test rebuild2
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Blog Posts</h1>
