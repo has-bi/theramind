@@ -1,3 +1,10 @@
+import CalendarMoodView from "./calendarMoodView";
+
 export default async function Page() {
-  return <div>Temporary (protected) Dashboard Page</div>;
+  return (
+    <main>
+      Temporary (protected) Dashboard Page
+      <CalendarMoodView />
+    </main>
+  );
 }
