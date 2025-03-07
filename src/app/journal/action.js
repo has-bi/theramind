@@ -4,20 +4,54 @@
 import { useState } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 
+// Conversation storage utility functions
+const STORAGE_KEY = "mindly_chat_history";
+
+function saveMessagesToStorage(messages) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  }
+}
+
+function getMessagesFromStorage() {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error("Error getting messages from storage:", error);
+      return [];
+    }
+  }
+  return [];
+}
+
 export default function ChatbotClient({ initialEmotionContext }) {
   // Initialize emotion context state with the value passed from the server.
   const [emotionContext] = useState(initialEmotionContext);
-  const [messages, setMessages] = useState([]);
+
+  // Load initial messages from localStorage
+  const [messages, setMessages] = useState(() => {
+    // This function only runs once during initial render
+    return getMessagesFromStorage();
+  });
+
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [recapSummary, setRecapSummary] = useState("");
+
+  // Function to update messages and save to storage
+  const updateMessages = newMessages => {
+    setMessages(newMessages);
+    saveMessagesToStorage(newMessages);
+  };
 
   const sendMessage = async e => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
     const newMessages = [...messages, { role: "user", content: input }];
-    setMessages(newMessages);
+    updateMessages(newMessages); // Update and save
     setInput("");
     setIsLoading(true);
 
@@ -32,13 +66,14 @@ export default function ChatbotClient({ initialEmotionContext }) {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+        const updatedMessages = [...newMessages, { role: "assistant", content: data.reply }];
+        updateMessages(updatedMessages); // Update and save
       } else {
         console.log("Chat error:", data.error);
       }
     } catch (error) {
       console.log("Chat API error:", error);
-      setMessages([
+      updateMessages([
         ...newMessages,
         { role: "error", content: "Failed to send message. Please try again." },
       ]);
@@ -48,6 +83,11 @@ export default function ChatbotClient({ initialEmotionContext }) {
   };
 
   const handleRecap = async () => {
+    if (messages.length < 2) {
+      setRecapSummary("Not enough conversation to generate a meaningful recap yet.");
+      return;
+    }
+
     try {
       const res = await fetch("/api/recap", {
         method: "POST",
@@ -63,10 +103,18 @@ export default function ChatbotClient({ initialEmotionContext }) {
         setRecapSummary(data.summary);
       } else {
         console.log("Recap error:", data.error);
+        setRecapSummary("Unable to generate recap. Please try again later.");
       }
     } catch (error) {
       console.log("Error calling recap API:", error);
+      setRecapSummary("Error generating recap. Please try again.");
     }
+  };
+
+  const clearConversation = () => {
+    setMessages([]);
+    setRecapSummary("");
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const handleKeyDown = e => {
@@ -79,18 +127,30 @@ export default function ChatbotClient({ initialEmotionContext }) {
   return (
     <div className="mobile-container w-full max-w-md flex flex-col h-screen bg-white">
       {/* Header */}
-      <header className="px-4 py-3 bg-white sticky top-0 z-10">
-        <h1 className="text-lg font-semibold text-gray-800">Mindly Chatbot</h1>
-        {emotionContext && (
-          <p className="text-sm text-gray-600">Today's Emotion: {emotionContext}</p>
-        )}
-        <button
-          onClick={handleRecap}
-          className="mt-2 bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
-          disabled={messages.length === 0 || isLoading}
-        >
-          Recap
-        </button>
+      <header className="px-4 py-3 bg-white sticky top-0 z-10 flex justify-between items-center">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-800">Mindly Chatbot</h1>
+          {emotionContext && (
+            <p className="text-sm text-gray-600">Today's Emotion: {emotionContext}</p>
+          )}
+        </div>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleRecap}
+            className="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
+            disabled={messages.length < 2 || isLoading}
+          >
+            Recap
+          </button>
+          {messages.length > 0 && (
+            <button
+              onClick={clearConversation}
+              className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Recap Summary Display */}

@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
-import OpenAI from "openai";
+import { OpenAI } from "openai";
+import { RECAP_SYSTEM_PROMPT } from "@/utils/prompts/recapSystemPrompt";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -8,7 +9,7 @@ const openai = new OpenAI({
 
 export async function POST(request) {
   try {
-    // 1. Get the session ID from the cookie
+    // Get the session ID from the cookie
     const cookieStore = await cookies();
     const sessionId = cookieStore.get("sessionId")?.value;
     console.log("Session ID from cookie:", sessionId);
@@ -21,7 +22,7 @@ export async function POST(request) {
       });
     }
 
-    // 2. Find the session in the DB (and include the user)
+    // Find the session in the DB (and include the user)
     const session = await prisma.session.findUnique({
       where: { id: sessionId },
       include: { user: true },
@@ -36,7 +37,7 @@ export async function POST(request) {
       });
     }
 
-    // 3. Check if session is expired
+    // Check if session is expired
     if (session.expires <= new Date()) {
       console.log("Session is expired. Expires at:", session.expires);
       return new Response(JSON.stringify({ error: "Session expired" }), {
@@ -45,12 +46,24 @@ export async function POST(request) {
       });
     }
 
-    // 4. Parse request body
+    // Parse request body
     const { messages, emotionContext } = await request.json();
     const userId = session.user.id;
 
-    // 5. Look up the emotion by name
-    //    (If you're storing emotionId on the client, adjust accordingly)
+    // Validate that we have message to summarize
+    if (!messages || messages.length < 2) {
+      return new Response(
+        JSON.stringify({
+          error: "Not enough conversation data to generate a recap",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Look up the emotion by name
     const emotionRecord = await prisma.emotion.findUnique({
       where: { name: emotionContext },
     });
@@ -62,7 +75,7 @@ export async function POST(request) {
       });
     }
 
-    // 6. Create a new MoodEntry
+    // Create a new MoodEntry
     const moodEntry = await prisma.moodEntry.create({
       data: {
         userId,
@@ -70,21 +83,20 @@ export async function POST(request) {
       },
     });
 
-    // 7. Generate recap via OpenAI
+    // Generate recap via OpenAI
     const recapPrompt = {
       role: "system",
-      content:
-        "Summarize the conversation below focusing on the user's emotions and the reasons behind them.",
+      content: RECAP_SYSTEM_PROMPT,
     };
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // or whichever model you prefer
+      model: "gpt-4o",
       messages: [recapPrompt, ...messages],
     });
 
     const summary = response.choices[0].message.content;
 
-    // 8. Save recap in JournalAI
+    // Save recap in JournalAI
     const journalRecord = await prisma.journalAI.create({
       data: {
         recap: summary,
@@ -93,14 +105,14 @@ export async function POST(request) {
       },
     });
 
-    // 9. Update the MoodEntry to reference the JournalAI record
+    // Update the MoodEntry to reference the JournalAI record
     const updatedMoodEntry = await prisma.moodEntry.update({
       where: { id: moodEntry.id },
       data: { journalId: journalRecord.id },
     });
 
-    // 10. Return final response with all relevant data
-    //     Use a replacer to convert BigInts to strings
+    // Return final response with all relevant data
+    // Use a replacer to convert BigInts to strings
     const jsonResponse = JSON.stringify(
       {
         summary,

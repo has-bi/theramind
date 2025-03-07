@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { CHAT_SYSTEM_PROMPT } from "@/utils/prompts/chatSystemPrompt";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -9,12 +10,7 @@ export async function POST(request) {
     const body = await request.json();
     const { messages, emotionContext } = body;
 
-    let systemContent = `You are Mindly, an intuitive mindfulness companion who prioritizes emotional connection before offering guidance.
-Your approach has these key phases:
-1. LANGUAGE & CULTURAL ANALYSIS: Detect and adapt to the user's language and cultural context.
-2. EMOTIONAL ATTUNEMENT: Carefully analyze and validate the user's emotions.
-3. AUTHENTIC CONNECTION: Respond as a supportive friend would, naturally and empathetically.
-4. MINDFUL GUIDANCE: Gently offer mindfulness techniques only after establishing a connection.`;
+    let systemContent = CHAT_SYSTEM_PROMPT;
 
     // Append emotion context if available
     if (emotionContext) {
