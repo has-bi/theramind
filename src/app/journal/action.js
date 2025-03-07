@@ -51,7 +51,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
     if (!input.trim() || isLoading) return;
 
     const newMessages = [...messages, { role: "user", content: input }];
-    updateMessages(newMessages); // Update and save
+    updateMessages(newMessages);
     setInput("");
     setIsLoading(true);
 
@@ -67,7 +67,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
       const data = await res.json();
       if (res.ok) {
         const updatedMessages = [...newMessages, { role: "assistant", content: data.reply }];
-        updateMessages(updatedMessages); // Update and save
+        updateMessages(updatedMessages);
       } else {
         console.log("Chat error:", data.error);
       }
