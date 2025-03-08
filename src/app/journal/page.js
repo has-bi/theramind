@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 
 export default function Journal() {
