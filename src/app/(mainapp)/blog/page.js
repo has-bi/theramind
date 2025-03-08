@@ -3,18 +3,18 @@ import { getAllPosts, getAllMoods, getPostsByMood } from "@/utils/blog";
 import Link from "next/link";
 import BlogFilter from "./components/BlogFilter";
 
-export default function BlogPage({ searchParams }) {
-  const selectedMood = searchParams.mood || "";
+export default async function BlogPage({ searchParams }) {
+  const selectedMood = (await searchParams.mood) || "";
   const posts = selectedMood ? getPostsByMood(selectedMood) : getAllPosts();
   const moods = getAllMoods();
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Mental Health Blog</h1>
+      <h1 className="text-3xl font-bold mb-8">TheraMind Blog</h1>
 
       <BlogFilter moods={moods} selectedMood={selectedMood} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid-cols-2 space-y-2">
         {posts.length === 0 ? (
           <div className="col-span-full text-center py-12">
             <p className="text-gray-600">No blog posts found for this mood.</p>
@@ -64,14 +64,23 @@ function formatDate(dateString) {
 }
 
 function getMoodColor(mood) {
+  const moodLower = mood.toLowerCase();
+
   const colors = {
-    anxious: { bg: "#FEF3C7", text: "#92400E" },
-    calm: { bg: "#DBEAFE", text: "#1E40AF" },
-    happy: { bg: "#D1FAE5", text: "#065F46" },
-    sad: { bg: "#E0E7FF", text: "#3730A3" },
-    angry: { bg: "#FEE2E2", text: "#B91C1C" },
-    default: { bg: "#F3F4F6", text: "#374151" },
+    happy: { bg: "#4ADE80", text: "#FFFFFF" }, // Green
+    sad: { bg: "#93C5FD", text: "#FFFFFF" }, // Light blue
+    calm: { bg: "#3B82F6", text: "#FFFFFF" }, // Blue
+    angry: { bg: "#F87171", text: "#FFFFFF" }, // Red
+    anxious: { bg: "#C084FC", text: "#FFFFFF" }, // Purple
+    neutral: { bg: "#D1D5DB", text: "#374151" }, // Gray
+    stressed: { bg: "#FDBA74", text: "#FFFFFF" }, // Orange
+    excited: { bg: "#FDE047", text: "#374151" }, // Yellow
+    tired: { bg: "#BFDBFE", text: "#1E40AF" }, // Lighter blue
+    confused: { bg: "#FDA4AF", text: "#FFFFFF" }, // Pink
+    grateful: { bg: "#67E8F9", text: "#0E7490" }, // Teal
+    loved: { bg: "#FDA4AF", text: "#FFFFFF" }, // Pink
+    default: { bg: "#F3F4F6", text: "#374151" }, // Light gray
   };
 
-  return colors[mood] || colors.default;
+  return colors[moodLower] || colors.default;
 }
