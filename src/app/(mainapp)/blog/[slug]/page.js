@@ -11,7 +11,7 @@ export default async function BlogPost({ params }) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-4">Post not found</h1>
-        <p>Sorry, the blog post you're looking for doesn't exist.</p>
+        <p>Sorry, the blog post you&apos;re looking for doesn&apos;t exist.</p>
         <Link href="/blog" className="text-blue-600 hover:underline mt-4 inline-block">
           ← Back to blog
         </Link>
