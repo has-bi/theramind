@@ -20,6 +20,7 @@ model User {
   firstName   String
   lastName    String
   age         Int
+  gender      String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   googleId    String?     @unique
