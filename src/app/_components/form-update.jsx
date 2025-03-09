@@ -20,40 +20,46 @@ export const FormUpdate = ({ id, firstName, lastName, age, gender, email, passwo
         {/* Update Form */}
         <form action={formAction} className="bg-white shadow-lg rounded-lg p-6 w-80 mt-6 space-y-3">
           <input type="hidden" name="id" defaultValue={id} />
+          <p className="font-bold text-sm">First Name</p>
           <input
             name="firstName"
             defaultValue={firstName}
-            className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full p-2 border text-sm rounded-md focus:ring focus:ring-blue-300"
           />
+          <p className="font-bold text-sm">Last Name</p>
           <input
             name="lastName"
             defaultValue={lastName}
-            className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full p-2 border text-sm rounded-md focus:ring focus:ring-blue-300"
           />
+          <p className="font-bold text-sm">Gender</p>
           <select
             name="gender"
             defaultValue={gender}
-            className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full p-2 border text-sm rounded-md focus:ring focus:ring-blue-300"
           >
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
           </select>
+          <p className="font-bold text-sm">Age</p>
           <input
             name="age"
             defaultValue={age}
-            className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full p-2 border text-sm rounded-md focus:ring focus:ring-blue-300"
           />
+          <p className="font-bold text-sm">Email</p>
           <input
             name="email"
             defaultValue={email}
-            className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full p-2 border text-sm rounded-md focus:ring focus:ring-blue-300"
           />
+          <p className="font-bold text-sm">Password</p>
           <input
             name="password"
             type="password"
             defaultValue={password}
-            className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full p-2 border text-sm rounded-md focus:ring focus:ring-blue-300"
           />
           <button
             disabled={pending}
