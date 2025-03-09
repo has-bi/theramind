@@ -10,7 +10,7 @@ export const FormUpdate = ({ id, firstName, lastName, age, gender, email, passwo
       <div className="min-h-screen bg-gray-100 flex flex-col">
         {/* Profile Section */}
         <div className="bg-white p-6 text-center shadow-md w-80 rounded-lg flex flex-col items-center">
-          <Avatar size={80} name={formData.email} variant="beam" colors={["#D7907B", "#36151E"]} />
+          <Avatar size={80} name={users.id} variant="beam" colors={["#D7907B", "#36151E"]} />
           <h2 className="text-lg font-semibold mt-2 text-black">
             {users.firstName} {users.lastName}
           </h2>
