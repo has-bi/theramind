@@ -1,15 +1,16 @@
 "use client";
+import { CalendarIcon } from "@heroicons/react/24/outline";
 import { useActionState } from "react";
 
-export const FormUpdate = ({ id, firstName, lastName, email, password }) => {
+export const FormUpdate = ({ id, firstName, lastName, age, gender, email, password }) => {
   const [_, formAction, pending] = useActionState(updateAction, null);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <div className="min-h-screen bg-gray-100 flex flex-col">
         {/* Profile Section */}
-        <div className="bg-white p-6 text-center shadow-md">
-          <UserCircleIcon className="h-20 w-20 mx-auto text-gray-500" />
+        <div className="bg-white p-6 text-center shadow-md w-80 rounded-lg flex flex-col items-center">
+          <Avatar size={80} name={formData.email} variant="beam" colors={["#D7907B", "#36151E"]} />
           <h2 className="text-lg font-semibold mt-2 text-black">
             {users.firstName} {users.lastName}
           </h2>
@@ -27,6 +28,20 @@ export const FormUpdate = ({ id, firstName, lastName, email, password }) => {
           <input
             name="lastName"
             defaultValue={lastName}
+            className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
+          />
+          <select
+            name="gender"
+            defaultValue={gender}
+            className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+          <input
+            name="age"
+            defaultValue={age}
             className="w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
           />
           <input
@@ -51,7 +66,7 @@ export const FormUpdate = ({ id, firstName, lastName, email, password }) => {
         {/* Bottom Navigation */}
         <div className="bg-white shadow-lg fixed bottom-0 w-full flex justify-around py-3">
           <NavItem title="Home" Icon={HomeIcon} />
-          <NavItem title="Notification" Icon={BellIcon} />
+          <NavItem title="Calendar" Icon={CalendarIcon} />
           <NavItem title="My Profile" Icon={UserIcon} />
         </div>
       </div>
