@@ -17,6 +17,7 @@ export default async function BlogPage() {
   console.log(content);
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 prose prose-lg">
+      {/* kalo pake MDXRemote error */}
       {/* <MDXRemote source={content} /> */}
       page
     </div>

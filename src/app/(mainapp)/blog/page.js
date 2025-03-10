@@ -1,4 +1,3 @@
-// app/(mainapp)/blog/page.js
 import { getAllPosts, getAllMoods, getPostsByMood } from "@/utils/blog";
 import Link from "next/link";
 import BlogFilter from "./components/BlogFilter";
@@ -14,7 +13,7 @@ export default async function BlogPage({ searchParams }) {
 
       <BlogFilter moods={moods} selectedMood={selectedMood} />
 
-      <div className="grid-cols-2 space-y-2">
+      <div className="grid space-y-2">
         {posts.length === 0 ? (
           <div className="col-span-full text-center py-12">
             <p className="text-gray-600">No blog posts found for this mood.</p>
@@ -38,9 +37,9 @@ export default async function BlogPage({ searchParams }) {
                       {post.mood}
                     </div>
                   )}
-                  <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-                  <p className="text-gray-600 mb-4">{post.excerpt}</p>
-                  <div className="flex items-center justify-between text-sm">
+                  <h2 className="text-lg font-bold mb-2">{post.title}</h2>
+                  <p className=" text-sm text-gray-600 mb-4">{post.excerpt}</p>
+                  <div className="flex items-center justify-between text-xs">
                     <span>{post.author}</span>
                     <span>{formatDate(post.date)}</span>
                   </div>
