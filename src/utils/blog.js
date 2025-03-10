@@ -32,6 +32,16 @@ export function getAllPosts() {
   }
 }
 
+export function getPostsByMood(mood) {
+  try {
+    const posts = getAllPosts();
+    return posts.filter(post => post.mood === mood);
+  } catch (error) {
+    console.error("Error in getPostsByMood:", error);
+    return [];
+  }
+}
+
 export function getAllMoods() {
   try {
     const posts = getAllPosts();
@@ -43,21 +53,10 @@ export function getAllMoods() {
   }
 }
 
-export function getPostsByMood(mood) {
-  try {
-    const posts = getAllPosts();
-    return posts.filter(post => post.mood === mood);
-  } catch (error) {
-    console.error("Error in getPostsByMood:", error);
-    return [];
-  }
-}
-
 export function getPostBySlug(slug) {
   try {
     const fullPath = path.join(contentDirectory, `${slug}.mdx`);
 
-    // Check if file exists first to avoid crashes
     if (!fs.existsSync(fullPath)) {
       return null;
     }
