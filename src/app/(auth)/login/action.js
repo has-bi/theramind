@@ -6,8 +6,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function validateSession() {
-  const cookieStore = cookies();
-  const sessionId = await cookieStore.get("sessionId")?.value;
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId")?.value;
 
   if (sessionId) {
     const session = await prisma.session.findUnique({
@@ -23,7 +23,7 @@ export async function validateSession() {
     });
 
     if (session) {
-      redirect("/dashboard");
+      redirect("/emotion");
     }
   }
 }
@@ -76,5 +76,5 @@ export async function loginAction(_, formData) {
     expires: newSession.expires,
   });
 
-  redirect("/dashboard");
+  redirect("/emotion");
 }
