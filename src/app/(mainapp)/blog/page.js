@@ -6,6 +6,7 @@ export default async function BlogPage({ searchParams }) {
   const selectedMood = (await searchParams.mood) || "";
   const posts = selectedMood ? getPostsByMood(selectedMood) : getAllPosts();
   const moods = getAllMoods();
+  console.log("posts", posts);
 
   return (
     <div className="container mx-auto px-4 py-8">

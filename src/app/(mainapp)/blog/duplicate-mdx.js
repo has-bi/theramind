@@ -1,3 +1,11 @@
+//the function of this script is to duplicate the mdx files in the content directory
+//reads frontmatter
+//gets mood
+//creates directory inside matched moods
+//creates directory with same name as mdx file
+//copies mdx file to new directory
+//renames mdx file to page.mdx
+
 const fs = require("fs");
 const path = require("path");
 const matter = require("gray-matter");
