@@ -147,7 +147,7 @@ export default function RecapClient() {
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Your Conversation Recap</h1>
         {state.isClientLoaded && state.emotionContext && (
-          <p className="text-sm text-gray-600">Today's Emotion: {state.emotionContext}</p>
+          <p className="text-sm text-gray-600">Today&apos;s Emotion: {state.emotionContext}</p>
         )}
       </header>
 

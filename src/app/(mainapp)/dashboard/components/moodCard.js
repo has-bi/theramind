@@ -69,7 +69,7 @@ const MoodCard = ({ emotions, existingMood = null, onMoodSelect }) => {
         <div className="flex items-start">
           <div>
             <div className="text-sm text-gray-600 mb-2">{currentTime}</div>
-            <h3 className="text-xl font-medium text-gray-800 mb-1">Today you're feeling</h3>
+            <h3 className="text-xl font-medium text-gray-800 mb-1">Today you&apos;re feeling</h3>
             <p className="text-2xl font-semibold text-gray-900 capitalize">{mood}</p>
           </div>
         </div>
