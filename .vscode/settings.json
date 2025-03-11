@@ -1,0 +1,9 @@
+{
+  "frontMatter.content.pageFolders": [
+    {
+      "title": "content",
+      "path": "[[workspace]]/src/app/(mainapp)/blog/content"
+    }
+  ],
+  "frontMatter.git.enabled": false
+}
