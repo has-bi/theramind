@@ -62,18 +62,20 @@ export const FormUpdate = ({ id, firstName, lastName, age, gender, email, passwo
             defaultValue={password}
             className="w-full p-2 border text-sm rounded-md focus:ring focus:ring-blue-300"
           />
-          <button
-            disabled={pending}
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
-          >
-            Update
-          </button>
-          <Link
-            href="/profile/[id]/page.js"
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
-          >
-            Back
-          </Link>
+          <div className="flex justify-center space-x-2 mt-4">
+            <button
+              disabled={pending}
+              className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
+            >
+              Update
+            </button>
+            <Link
+              href="/profile/[id]/page.js"
+              className="flex-1 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 disabled:bg-gray-300"
+            >
+              Back
+            </Link>
+          </div>
         </form>
 
         {/* Bottom Navigation */}
