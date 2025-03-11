@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
-import ChatbotClient from "./action";
+import ChatbotClient from "./ChatbotClient";
 
 export default async function ChatbotPage() {
   const cookieStore = await cookies();
