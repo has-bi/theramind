@@ -36,7 +36,6 @@ export async function GET(request) {
     });
 
     const CalendarMoodData = moodEntries.map(entry => ({
-      userId: userId,
       createdAt: entry.createdAt,
       emotionName: entry.emotion.name,
     }));
