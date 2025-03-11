@@ -1,5 +1,6 @@
 "use client";
 import { CalendarIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 import { useActionState } from "react";
 
 export const FormUpdate = ({ id, firstName, lastName, age, gender, email, password }) => {
@@ -67,6 +68,12 @@ export const FormUpdate = ({ id, firstName, lastName, age, gender, email, passwo
           >
             Update
           </button>
+          <Link
+            href="/profile/[id]/page.js"
+            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            Back
+          </Link>
         </form>
 
         {/* Bottom Navigation */}
