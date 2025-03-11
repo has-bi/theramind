@@ -66,9 +66,10 @@ export default async function BlogPage({ params }) {
     const htmlContent = marked(content);
 
     console.log(frontmatter);
+    console.log(content);
 
     return (
-      <article className="max-w-4xl mx-auto px-4 py-8">
+      <article className="mobile-container w-full max-w-[480px] bg-white min-h-screen px-4 py-8">
         <header className="mb-8">
           <h1 className="text-3xl font-bold mb-2">{frontmatter.title}</h1>
           <div className="flex justify-between text-sm text-gray-500 mt-12 mb-2">
