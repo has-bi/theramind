@@ -1,5 +1,5 @@
 "use client";
-import { CalendarIcon } from "@heroicons/react/24/outline";
+import { CalendarIcon, NewspaperIcon, UserIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useActionState } from "react";
 
@@ -80,9 +80,9 @@ export const FormUpdate = ({ id, firstName, lastName, age, gender, email, passwo
 
         {/* Bottom Navigation */}
         <div className="bg-white shadow-lg fixed bottom-0 w-full flex justify-around py-3">
-          <NavItem title="Home" Icon={HomeIcon} />
-          <NavItem title="Calendar" Icon={CalendarIcon} />
           <NavItem title="My Profile" Icon={UserIcon} />
+          <NavItem title="Calendar" Icon={CalendarIcon} />
+          <NavItem title="Blog" Icon={NewspaperIcon} />
         </div>
       </div>
     </div>
