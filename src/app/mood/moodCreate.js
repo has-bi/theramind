@@ -35,14 +35,27 @@ export const EmojiForm = () => {
       formData.set("imagePath", selectedEmotion.imagePath);
       formData.set("value", selectedEmotion.value);
 
+      // PENTING: Simpan emotion ke localStorage sebagai fallback
+      // Ini memastikan data masih tersedia meskipun ada masalah dengan cookies/session
+      if (typeof window !== "undefined") {
+        localStorage.setItem("emotion_context", selectedEmotion.value);
+        localStorage.setItem("emotion_id", selectedEmotion.id);
+        console.log("Saved emotion to localStorage:", selectedEmotion.value);
+      }
+
       const result = await formAction(formData);
 
       if (result?.success) {
-        // Redirect to journal page after successful submission
-        window.location.href = "/journal";
+        // Menggunakan result.redirect dari server action jika ada
+        if (result.redirect) {
+          window.location.href = result.redirect;
+        } else {
+          // Fallback ke /chat jika tidak ada redirect dari server
+          window.location.href = "/chat";
+        }
       } else if (result?.error) {
         console.log(result.error);
-        // Display error to user if needed
+        alert(result.error || "Failed to save your emotion");
       }
     }
     return null;

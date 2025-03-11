@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 
 // Conversation storage utility functions
@@ -25,15 +25,53 @@ function getMessagesFromStorage() {
   return [];
 }
 
+function clearMessagesFromStorage() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
 export default function ChatbotClient({ initialEmotionContext }) {
-  // Initialize emotion context state with the value passed from the server.
-  const [emotionContext] = useState(initialEmotionContext);
-
-  // Load initial messages from localStorage
+  // Menggunakan state untuk client hydration tracking
+  const [isClient, setIsClient] = useState(false);
+  const [emotionContext, setEmotionContext] = useState(initialEmotionContext);
   const [messages, setMessages] = useState([]);
-
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Gunakan useEffect untuk sinkronisasi client-side
+  useEffect(() => {
+    // Tandai bahwa kita sekarang di client side
+    setIsClient(true);
+
+    // Prioritaskan initialEmotionContext dari server, gunakan localStorage sebagai fallback
+    if (!initialEmotionContext) {
+      const storedEmotion = localStorage.getItem("emotion_context");
+      if (storedEmotion) {
+        setEmotionContext(storedEmotion);
+      }
+    } else {
+      // Simpan emotion context dari server ke localStorage untuk konsistensi
+      localStorage.setItem("emotion_context", initialEmotionContext);
+    }
+
+    // Cek apakah recap baru saja selesai
+    const recapCompleted = localStorage.getItem("recap_completed") === "true";
+
+    if (recapCompleted) {
+      // Jika recap baru saja selesai, bersihkan chat
+      clearMessagesFromStorage();
+      // Hapus flag recap_completed
+      localStorage.removeItem("recap_completed");
+      console.log("Chat cleaned after recap completion");
+    } else {
+      // Jika tidak, coba dapatkan chat history
+      const storedMessages = getMessagesFromStorage();
+      if (storedMessages.length > 0) {
+        setMessages(storedMessages);
+      }
+    }
+  }, [initialEmotionContext]);
 
   // Function to update messages and save to storage
   const updateMessages = newMessages => {
@@ -85,7 +123,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
 
     try {
       setIsLoading(true);
-      // Call your existing API endpoint that generates the recap AND saves it
+      // Call your existing API endpoint that generates the recap
       const res = await fetch("/api/recap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,8 +136,14 @@ export default function ChatbotClient({ initialEmotionContext }) {
 
       const data = await res.json();
       if (res.ok) {
-        // Store just the recap for display on the next page
+        // Simpan data untuk halaman recap
         localStorage.setItem("current_recap", data.summary);
+        localStorage.setItem("emotion_context", emotionContext);
+
+        console.log("Saved to localStorage before redirect:", {
+          recapLength: data.summary.length,
+          emotion: emotionContext,
+        });
 
         // Navigate to the recap display page
         window.location.href = `/recap`;
@@ -122,13 +166,17 @@ export default function ChatbotClient({ initialEmotionContext }) {
     }
   };
 
+  // Render welcome message jika masih di server atau belum ada pesan
+  const showWelcomeMessage = !isClient || messages.length === 0;
+
   return (
     <div className="mobile-container w-full max-w-md flex flex-col h-screen bg-white">
       {/* Header */}
       <header className="px-4 py-3 bg-white sticky top-0 z-10 flex justify-between items-center">
         <div>
           <h1 className="text-lg font-semibold text-gray-800">Mindly Chatbot</h1>
-          {emotionContext && (
+          {/* Hanya tampilkan emotionContext saat di client */}
+          {isClient && emotionContext && (
             <p className="text-sm text-gray-600">Today Emotion: {emotionContext}</p>
           )}
         </div>
@@ -136,7 +184,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
           <button
             onClick={handleRecap}
             className="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
-            disabled={messages.length < 2 || isLoading}
+            disabled={!isClient || messages.length < 2 || isLoading}
           >
             Recap
           </button>
@@ -145,7 +193,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
 
       {/* Messages Container */}
       <main className="flex-1 overflow-y-auto px-4 py-2 flex flex-col">
-        {messages.length === 0 ? (
+        {showWelcomeMessage ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center p-6">
               <p className="text-gray-500 mb-4">Welcome to your personal chat</p>
