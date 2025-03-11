@@ -2,20 +2,20 @@
 
 import React from "react";
 
-export default function Calendar({ currentDate, moodData, onChangeMonth }) {
+export default function Calendar({ currentDate, moodData, onChangeMonth, onDateClick }) {
   const MOOD_COLORS = {
-    happy: "bg-green-500 text-white",
-    sad: "bg-blue-300 text-blue-900",
-    calm: "bg-blue-500 text-white",
-    angry: "bg-red-400 text-white",
-    anxious: "bg-purple-300 text-purple-900",
-    neutral: "bg-gray-300 text-gray-900",
-    stressed: "bg-orange-300 text-orange-900",
-    excited: "bg-yellow-300 text-yellow-900",
-    tired: "bg-indigo-300 text-indigo-900",
-    confused: "bg-pink-300 text-pink-900",
-    grateful: "bg-teal-300 text-teal-900",
-    loved: "bg-rose-300 text-rose-900",
+    happy: "bg-green-400",
+    sad: "bg-blue-300",
+    calm: "bg-sky-400",
+    angry: "bg-red-400",
+    anxious: "bg-purple-300",
+    neutral: "bg-gray-300",
+    stressed: "bg-orange-300",
+    excited: "bg-yellow-300",
+    tired: "bg-indigo-300",
+    confused: "bg-pink-300",
+    grateful: "bg-teal-400",
+    loved: "bg-rose-300",
   };
 
   const isCurrentDate = dateString => {
@@ -27,27 +27,26 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
     return dateString === todayString;
   };
 
-  const handleDateClick = dateString => {
-    console.log("Selected date:", dateString);
+  const formatDateString = (year, month, day) => {
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   };
 
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
     const days = [];
 
-    // Date from Prev Month
-    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    // Previous month days
+    const firstDay = new Date(year, month, 1);
     const firstDayOfWeek = firstDay.getDay();
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
 
     for (let i = firstDayOfWeek - 1; i >= 0; i--) {
       const day = prevMonthLastDay - i;
-      const dateString = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
-        2,
-        "0"
-      )}`;
+      const prevMonth = month === 0 ? 12 : month;
+      const prevYear = month === 0 ? year - 1 : year;
+      const dateString = formatDateString(prevMonth === 12 ? prevYear : year, prevMonth, day);
+
       days.push({
         day,
         dateString,
@@ -56,11 +55,11 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
       });
     }
 
+    // Current month days
+    const lastDay = new Date(year, month + 1, 0);
     for (let day = 1; day <= lastDay.getDate(); day++) {
-      const dateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(
-        2,
-        "0"
-      )}`;
+      const dateString = formatDateString(year, month + 1, day);
+
       days.push({
         day,
         dateString,
@@ -69,16 +68,16 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
       });
     }
 
-    // Date from Next Month
+    // Next month days
     const lastDayOfWeek = lastDay.getDay();
-    for (let i = 1; i <= 6 - lastDayOfWeek; i++) {
-      const day = i;
-      const dateString = `${year}-${String(month + 2).padStart(2, "0")}-${String(day).padStart(
-        2,
-        "0"
-      )}`;
+    const daysToAdd = 6 - lastDayOfWeek;
+    for (let i = 1; i <= daysToAdd; i++) {
+      const nextMonth = month === 11 ? 1 : month + 2;
+      const nextYear = month === 11 ? year + 1 : year;
+      const dateString = formatDateString(nextMonth === 1 ? nextYear : year, nextMonth, i);
+
       days.push({
-        day,
+        day: i,
         dateString,
         mood: moodData[dateString],
         isCurrentMonth: false,
@@ -89,95 +88,84 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
   };
 
   return (
-    <div className="bg-white border-1 border-slate-200 rounded-lg p-4 max-w-md mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <button onClick={() => onChangeMonth(-1)} className="hover:bg-gray-100 rounded-full p-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+    <div className="bg-white rounded-xl p-6 shadow-sm max-w-md mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={() => onChangeMonth(-1)}
+          className="text-gray-600"
+          aria-label="Previous month"
+        >
+          &lt;
         </button>
-        <div className="text-xl font-bold">
+        <div className="text-xl font-medium text-gray-800">
           {currentDate.toLocaleString("default", {
             month: "long",
             year: "numeric",
           })}
         </div>
-        <button onClick={() => onChangeMonth(1)} className="hover:bg-gray-100 rounded-full p-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
+        <button onClick={() => onChangeMonth(1)} className="text-gray-600" aria-label="Next month">
+          &gt;
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
-          <div key={day} className="font-semibold text-gray-500 text-sm">
-            {day}
-          </div>
-        ))}
+      <div className="grid grid-cols-7 text-center mb-2">
+        <div className="text-gray-500 text-xs">S</div>
+        <div className="text-gray-500 text-xs">M</div>
+        <div className="text-gray-500 text-xs">T</div>
+        <div className="text-gray-500 text-xs">W</div>
+        <div className="text-gray-500 text-xs">T</div>
+        <div className="text-gray-500 text-xs">F</div>
+        <div className="text-gray-500 text-xs">S</div>
+      </div>
+
+      <div className="grid grid-cols-7 gap-y-2 text-center">
         {generateCalendarDays().map((dayInfo, index) => {
           const isToday = isCurrentDate(dayInfo.dateString);
-          const hasMood = dayInfo.mood;
+          const hasMood = !!dayInfo.mood;
 
           return (
             <div
-              key={index}
-              className={`
-                h-10 flex items-center justify-center
-                ${dayInfo ? "cursor-pointer" : ""}
-              `}
-              onClick={() => handleDateClick(dayInfo.dateString)}
+              key={`day-${index}`}
+              className="relative h-8"
+              onClick={() => (onDateClick ? onDateClick(dayInfo.dateString) : null)}
             >
               {dayInfo && (
-                <div
-                  className={`
-                    w-8 h-8 flex items-center justify-center rounded-full
-                    ${
-                      hasMood
-                        ? MOOD_COLORS[dayInfo.mood]
-                        : isToday
-                        ? "bg-black text-white"
-                        : dayInfo.isCurrentMonth
-                        ? "text-gray-700 hover:bg-gray-100"
-                        : "text-gray-400 hover:bg-gray-100"
-                    }
-                  `}
-                >
-                  {dayInfo.day}
-                </div>
+                <>
+                  {/* Mood indicator with date */}
+                  <div
+                    className={`
+                      w-8 h-8 mx-auto flex items-center justify-center rounded-full
+                      ${hasMood ? MOOD_COLORS[dayInfo.mood.toLowerCase()] : "bg-transparent"}
+                      ${!dayInfo.isCurrentMonth ? "text-gray-400" : "text-gray-800"}
+                      ${isToday ? "ring-1 ring-black" : ""}
+                      ${hasMood || isToday ? "cursor-pointer" : ""}
+                      text-sm
+                    `}
+                  >
+                    {dayInfo.day}
+                  </div>
+
+                  {/* Today dot indicator */}
+                  {isToday && (
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-black rounded-full"></div>
+                  )}
+                </>
               )}
             </div>
           );
         })}
       </div>
 
-      <div className="mt-4 flex flex-wrap justify-center gap-2">
-        {Object.entries(MOOD_COLORS).map(([mood, color]) => (
-          <div key={mood} className="flex items-center">
-            <div className={`w-4 h-4 mr-1 rounded-full ${color}`}></div>
-            <span className="text-xs capitalize">{mood.replace("-", " ")}</span>
-          </div>
-        ))}
+      <div className="mt-6">
+        <div className="text-sm font-medium mb-2">Mood Legend</div>
+        <div className="grid grid-cols-3 gap-y-2">
+          {Object.entries(MOOD_COLORS).map(([mood, color]) => (
+            <div key={`mood-${mood}`} className="flex items-center">
+              <div className={`w-3 h-3 mr-2 rounded-full ${color}`}></div>
+              <span className="text-xs capitalize text-gray-600">{mood}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

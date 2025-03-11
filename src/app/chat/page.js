@@ -1,7 +1,6 @@
-"use client";
-
-import { useState } from "react";
-import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
+import { cookies } from "next/headers";
+import { prisma } from "@/utils/prisma";
+import ChatbotClient from "./ChatbotClient";
 
 export default async function ChatbotPage() {
   const cookieStore = await cookies();

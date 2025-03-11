@@ -1,24 +1,27 @@
-// MoodCard.jsx
 "use client";
 import React, { useState } from "react";
 
 const MoodCard = ({ emotions, existingMood = null, onMoodSelect }) => {
   const [mood, setMood] = useState(existingMood);
-  const [isEditing, setIsEditing] = useState(!existingMood);
 
-  // Emotion to color mapping
+  // Emotion to color mapping - matching the calendar component colors
   const moodColors = {
-    Happy: "bg-yellow-200",
-    Sad: "bg-blue-200",
-    Angry: "bg-red-200",
-    Calm: "bg-green-200",
-    Anxious: "bg-purple-200",
-    // Add more colors as needed
+    happy: "bg-green-400",
+    sad: "bg-blue-300",
+    calm: "bg-sky-400",
+    angry: "bg-red-400",
+    anxious: "bg-purple-300",
+    neutral: "bg-gray-300",
+    stressed: "bg-orange-300",
+    excited: "bg-yellow-300",
+    tired: "bg-indigo-300",
+    confused: "bg-pink-300",
+    grateful: "bg-teal-400",
+    loved: "bg-rose-300",
   };
 
   const handleMoodSelect = async selectedMood => {
     setMood(selectedMood);
-    setIsEditing(false);
 
     // Call the parent component's handler for database operations
     if (onMoodSelect) {
@@ -29,55 +32,46 @@ const MoodCard = ({ emotions, existingMood = null, onMoodSelect }) => {
   const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   // Get the background color class based on mood
-  const cardBgColor = mood ? moodColors[mood] || "bg-neutral-200" : "bg-neutral-200";
+  const cardBgColor = mood ? moodColors[mood.toLowerCase()] || "bg-white" : "bg-white";
 
   return (
     <div
-      className={`${cardBgColor} rounded-xl p-4 shadow-sm w-full max-w-md transition-colors duration-300`}
+      className={`rounded-xl p-5 shadow-sm w-full max-w-md transition-all duration-300 ${
+        mood ? cardBgColor : "bg-white border border-gray-100"
+      }`}
     >
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-neutral-700 font-medium">Today</span>
-        <div className="flex items-center">
-          <span className="text-neutral-700 mr-3">{currentTime}</span>
-          <button onClick={() => setIsEditing(true)} className="text-neutral-700">
+      {!mood ? (
+        // Add new mood state - only shows when no mood is recorded
+        <div className="flex flex-col items-center justify-center py-6">
+          <a
+            href="/mood"
+            className="w-16 h-16 mb-4 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
+              width="24"
+              height="24"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="text-gray-500"
             >
-              <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              <path d="M12 5v14M5 12h14" />
             </svg>
-          </button>
-        </div>
-      </div>
-
-      {isEditing ? (
-        <div>
-          <p className="text-lg mb-3 text-neutral-800">How are you feeling today?</p>
-          <div className="flex flex-wrap gap-2">
-            {emotions.map(emotion => (
-              <button
-                key={emotion.id}
-                onClick={() => handleMoodSelect(emotion.name)}
-                className={`${
-                  moodColors[emotion.name] || "bg-gray-200"
-                } rounded-full px-3 py-2 flex items-center shadow-sm hover:shadow-md transition-shadow text-neutral-800`}
-              >
-                <span>{emotion.name}</span>
-              </button>
-            ))}
-          </div>
+          </a>
+          <p className="text-gray-600 font-medium">How was your feeling today?</p>
         </div>
       ) : (
-        <div>
-          <p className="text-lg text-neutral-800">I'm feeling</p>
-          <p className="text-2xl font-semibold text-neutral-900">{mood}</p>
+        // Mood already selected state - no edit option
+        <div className="flex items-start">
+          <div>
+            <div className="text-sm text-gray-600 mb-2">{currentTime}</div>
+            <h3 className="text-xl font-medium text-gray-800 mb-1">Today you're feeling</h3>
+            <p className="text-2xl font-semibold text-gray-900 capitalize">{mood}</p>
+          </div>
         </div>
       )}
     </div>
