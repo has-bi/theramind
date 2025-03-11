@@ -1,32 +1,31 @@
-"use server";
-
-import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+// /api/emotion/route.js
 import { prisma } from "@/utils/prisma";
+import { cookies } from "next/headers";
 
-export async function createMoodAction(_, formData) {
-  const emotionId = Number(formData.get("emotionId"));
-  const label = formData.get("label");
-  const imagePath = formData.get("imagePath");
-  const value = formData.get("value");
-
+export async function GET(request) {
   try {
-    // Get the session cookie
+    const { emotionId, label, imagePath, value } = await request.json();
+
     const cookieStore = await cookies();
     const sessionId = cookieStore.get("sessionId")?.value;
 
     if (!sessionId) {
-      return { error: "No active session" };
+      return new Response(JSON.stringify({ error: "No active session" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    // Get user from session
     const session = await prisma.session.findUnique({
       where: { id: sessionId },
       include: { user: true },
     });
 
     if (!session) {
-      return { error: "Invalid session" };
+      return new Response(JSON.stringify({ error: "Invalid session" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const userId = session.user.id;
@@ -49,20 +48,22 @@ export async function createMoodAction(_, formData) {
     }
 
     // Create mood entry
-    await prisma.moodEntry.create({
+    const moodEntry = await prisma.moodEntry.create({
       data: {
         userId,
         emotionId,
       },
     });
 
-    // Revalidate the path to refresh data
-    revalidatePath("/");
-
-    // Return success with redirect info instead of redirecting directly
-    return { success: true, redirect: "/journal" };
+    return new Response(JSON.stringify({ success: true, moodEntry }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Error saving emotion:", error);
-    return { error: "An unexpected error occurred: " + error.message };
+    return new Response(JSON.stringify({ error: "Failed to save emotion" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

@@ -5,6 +5,29 @@ import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+export async function validateSession() {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId")?.value;
+
+  if (sessionId) {
+    const session = await prisma.session.findUnique({
+      where: {
+        id: sessionId,
+        expires: {
+          gt: new Date(),
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (session) {
+      redirect("/emotion");
+    }
+  }
+}
+
 export async function loginAction(_, formData) {
   const cookieStore = await cookies();
   const email = await formData.get("email");
@@ -53,5 +76,5 @@ export async function loginAction(_, formData) {
     expires: newSession.expires,
   });
 
-  redirect("/dashboard");
+  redirect("/emotion");
 }

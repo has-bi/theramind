@@ -1,15 +1,21 @@
-// prisma/seed.js
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
+
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create emotions
   const emotions = [
     { name: "Happy" },
     { name: "Sad" },
+    { name: "Calm" },
     { name: "Angry" },
     { name: "Anxious" },
-    { name: "Calm" },
+    { name: "Neutral" },
+    { name: "Stressed" },
+    { name: "Excited" },
+    { name: "Tired" },
+    { name: "Confused" },
+    { name: "Loved" },
+    { name: "Grateful" },
   ];
 
   for (const emotion of emotions) {
@@ -20,11 +26,11 @@ async function main() {
     });
   }
 
-  console.log("Seed data created successfully");
+  console.log("Emotions seeded successfully!");
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error(e);
     process.exit(1);
   })
