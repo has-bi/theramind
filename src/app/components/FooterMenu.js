@@ -27,7 +27,7 @@ export default function FooterMenu() {
       ),
     },
     {
-      name: "Dashboard",
+      name: "Home",
       path: "/dashboard",
       icon: active => (
         <svg
