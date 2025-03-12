@@ -22,7 +22,7 @@ export default function BlogFilter({ moods, selectedMood }) {
   return (
     <div className="mb-8">
       <label htmlFor="mood-filter" className="block text-sm font-medium mb-2">
-        Filter by Mood:
+        How&apos;s your feeling today?
       </label>
       <select
         id="mood-filter"
@@ -30,7 +30,7 @@ export default function BlogFilter({ moods, selectedMood }) {
         onChange={handleMoodChange}
         className="w-full md:w-64 p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
       >
-        <option value="">All Moods</option>
+        <option value="">neutral</option>
         {moods.map(mood => (
           <option key={mood} value={mood}>
             {mood.charAt(0).toUpperCase() + mood.slice(1)}

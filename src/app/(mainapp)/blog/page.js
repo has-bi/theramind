@@ -3,7 +3,8 @@ import Link from "next/link";
 import BlogFilter from "./components/BlogFilter";
 
 export default async function BlogPage({ searchParams }) {
-  const selectedMood = (await searchParams.mood) || "";
+  const awaitedParams = await searchParams;
+  const selectedMood = awaitedParams.mood || "";
   const posts = selectedMood ? getPostsByMood(selectedMood) : getAllPosts();
   const moods = getAllMoods();
   console.log("posts", posts);
@@ -14,16 +15,16 @@ export default async function BlogPage({ searchParams }) {
 
       <BlogFilter moods={moods} selectedMood={selectedMood} />
 
-      <div className="grid gap-4">
+      <div>
         {posts.length === 0 ? (
-          <div className="col-span-full text-center py-12">
+          <div>
             <p className="text-gray-600">No blog posts found for this mood.</p>
           </div>
         ) : (
           posts.map(post => (
             <div
               key={post.slug}
-              className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              className="rounded-md overflow-hidden shadow-md hover:shadow-lg transition-shadow"
             >
               <Link href={`/blog/${post.slug}`}>
                 <div className="p-6">
@@ -38,7 +39,7 @@ export default async function BlogPage({ searchParams }) {
                       {post.mood}
                     </div>
                   )}
-                  <h2 className="text-lg font-bold mb-2">{post.title}</h2>
+                  <h2 className="text-lg font-bold mb-2 hover:text-blue-400">{post.title}</h2>
                   <p className=" text-sm text-gray-600 mb-4">{post.excerpt}</p>
                   <div className="flex items-center justify-between text-xs">
                     <span>{post.author}</span>

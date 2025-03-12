@@ -1,8 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { marked } from "marked";
+import { MarkDownRenderer } from "../components/markdown-renderer";
 
 // Generate static params for all MDX files
 export function generateStaticParams() {
@@ -63,7 +62,6 @@ export default async function BlogPage({ params }) {
     // Read and parse MDX
     const fileContents = fs.readFileSync(filePath, "utf-8");
     const { data: frontmatter, content } = matter(fileContents);
-    const htmlContent = marked(content);
 
     console.log(frontmatter);
     console.log(content);
@@ -104,16 +102,13 @@ export default async function BlogPage({ params }) {
         </header>
 
         {/* remember, rendernya pake content!*/}
-        <div className="prose prose-lg max-w-none">
-          <div
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: htmlContent }}
-          />
-          {/* <MDXRemote content={htmlContent} /> */}
+        <div className="prose prose-lg max-w-none text-sm whitespace-pre-line w-fit">
+          <MarkDownRenderer content={content} />
         </div>
       </article>
     );
   } catch (error) {
+    console.log(error);
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-red-500">Error Loading Blog Post</h1>

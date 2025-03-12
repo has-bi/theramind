@@ -24,10 +24,12 @@
     "marked": "^15.0.7",
     "next": "15.2.0",
     "next-mdx-remote": "^5.0.0",
+    "next-mdx-remote-client": "^2.1.1",
     "openai": "^4.86.1",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.0.0",
     "web-streams-polyfill": "^4.1.0"
