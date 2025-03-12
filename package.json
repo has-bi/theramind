@@ -19,6 +19,7 @@
     "@types/mdx": "^2.0.13",
     "arctic": "^3.4.0",
     "bcrypt": "^5.1.1",
+    "boring-avatars": "^1.11.2",
     "date-fns": "^4.1.0",
     "gray-matter": "^4.0.3",
     "marked": "^15.0.7",
