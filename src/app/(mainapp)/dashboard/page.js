@@ -1,10 +1,10 @@
-// /dashboard/page.js
 import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
 import MoodCard from "./components/moodCard";
 import { saveMoodEntry } from "./mood-actions";
 import CalendarMoodView from "./calendarMoodView";
-import { getMoodData } from "@/app/api/calendar/getMoodData"; // Import the same function used by calendar
+import { getMoodData } from "@/app/api/calendar/getMoodData";
+import Image from "next/image";
 
 export default async function Page() {
   // Get session ID from cookie
@@ -15,8 +15,24 @@ export default async function Page() {
   let currentStreak = 0;
   let topMoods = [];
 
-  // Fetch emotions from the mood selection
-  const emotions = await prisma.emotion.findMany();
+  // Emotion definitions for consistent reference
+  const emotions = [
+    { id: 1, label: "Happy", imagePath: "/images/emotions/happy.png", value: "Happy" },
+    { id: 2, label: "Sad", imagePath: "/images/emotions/sad.png", value: "Sad" },
+    { id: 3, label: "Calm", imagePath: "/images/emotions/calm.png", value: "Calm" },
+    { id: 4, label: "Angry", imagePath: "/images/emotions/angry.png", value: "Angry" },
+    { id: 5, label: "Anxious", imagePath: "/images/emotions/anxious.png", value: "Anxious" },
+    { id: 6, label: "Neutral", imagePath: "/images/emotions/neutral.png", value: "Neutral" },
+    { id: 7, label: "Stressed", imagePath: "/images/emotions/stressed.png", value: "Stressed" },
+    { id: 8, label: "Excited", imagePath: "/images/emotions/excited.png", value: "Excited" },
+    { id: 9, label: "Tired", imagePath: "/images/emotions/tired.png", value: "Tired" },
+    { id: 10, label: "Confused", imagePath: "/images/emotions/confused.png", value: "Confused" },
+    { id: 12, label: "Grateful", imagePath: "/images/emotions/grateful.png", value: "Grateful" },
+    { id: 11, label: "Loved", imagePath: "/images/emotions/loved.png", value: "Loved" },
+  ];
+
+  // Fetch emotions from database
+  const dbEmotions = await prisma.emotion.findMany();
 
   if (sessionId) {
     const session = await prisma.session.findUnique({
@@ -54,19 +70,25 @@ export default async function Page() {
       // Calculate current streak
       const now = new Date();
       let checkDate = new Date(now);
-      let streakActive = !!todaysMoodEntry; // Streak is active if today has an entry
+      let hasGap = false;
+      let todayCounted = false;
 
-      while (streakActive) {
-        // Move to previous day
-        checkDate.setDate(checkDate.getDate() - 1);
+      // Pertama, cek hari ini
+      if (todaysMoodEntry) {
+        currentStreak = 1;
+        todayCounted = true;
+      }
 
+      // Kemudian cek hari-hari sebelumnya
+      checkDate.setDate(checkDate.getDate() - 1);
+
+      while (!hasGap) {
         const dayStart = new Date(checkDate);
         dayStart.setHours(0, 0, 0, 0);
 
         const dayEnd = new Date(checkDate);
         dayEnd.setHours(23, 59, 59, 999);
 
-        // Check if there's a mood entry for this day
         const entryExists = await prisma.moodEntry.findFirst({
           where: {
             userId: userId,
@@ -80,16 +102,11 @@ export default async function Page() {
         if (entryExists) {
           currentStreak++;
         } else {
-          streakActive = false;
+          hasGap = true;
         }
 
-        // Prevent infinite loops by limiting to 100 days
+        checkDate.setDate(checkDate.getDate() - 1);
         if (currentStreak > 100) break;
-      }
-
-      // Add today to streak if it exists
-      if (todaysMoodEntry) {
-        currentStreak++;
       }
 
       // Get mood data using the same function that the calendar uses
@@ -99,7 +116,6 @@ export default async function Page() {
       const moodCounts = {};
 
       Object.entries(moodData).forEach(([date, mood]) => {
-        // Only count moods from the current month
         const entryDate = new Date(date);
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
@@ -118,88 +134,114 @@ export default async function Page() {
       // Get days in current month
       const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
-      // Add ratio
-      topMoods = topMoods.map(mood => ({
-        ...mood,
-        ratio: `${mood.count}/${daysInMonth}`,
-      }));
+      // Add ratio and image path
+      topMoods = topMoods.map(mood => {
+        // Find matching emotion to get image path
+        const matchingEmotion = emotions.find(
+          e => e.label.toLowerCase() === mood.name.toLowerCase()
+        );
+        return {
+          ...mood,
+          ratio: `${mood.count}/${daysInMonth}`,
+          imagePath: matchingEmotion?.imagePath || "/images/emotions/neutral.png",
+        };
+      });
     }
   }
 
+  // Format day for header
+  const today = new Date();
+  const options = { weekday: "long", day: "numeric", month: "long" };
+  const formattedDate = today.toLocaleDateString("en-US", options);
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-5">
-          <h1 className="text-2xl font-bold text-gray-800 text-center">Theramind</h1>
+    <div className="page-container bg-white px-4 pt-6">
+      {/* Modern minimalist header */}
+      <header className="mb-6">
+        <h1 className="text-xl font-bold text-gray-800">Home</h1>
+        <p className="text-sm text-gray-500 mt-1">{formattedDate}</p>
+      </header>
+
+      {/* 1. MOOD CARD - First section */}
+      <div className="mb-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <MoodCard
+            emotions={dbEmotions.length > 0 ? dbEmotions : emotions}
+            existingMood={existingMood}
+            onMoodSelect={saveMoodEntry}
+          />
         </div>
       </div>
 
-      <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto">
-          {/* Stats section */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Current Streak */}
-            <div className="bg-white rounded-xl p-5 shadow-sm">
-              <div className="flex items-center">
-                <div className="p-3 bg-blue-50 rounded-lg mr-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-blue-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-sm">Current Streak</p>
-                  <p className="text-2xl font-bold text-gray-800">{currentStreak} days</p>
-                </div>
+      {/* 2. CALENDAR - Second section */}
+      <div className="mb-8">
+        <h2 className="text-base font-semibold text-gray-700 mb-3">Your Mood Calendar</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-hidden">
+          <CalendarMoodView />
+        </div>
+      </div>
+
+      {/* 3. STATS (Current Streak & Top 3 Moods) - Bottom section */}
+      <div className="mb-20">
+        <h2 className="text-base font-semibold text-gray-700 mb-3">Your Stats</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {/* Current Streak - Left Column */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center">
+              <div className="p-3 bg-indigo-50 rounded-xl mr-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-indigo-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-indigo-700">{currentStreak}</p>
+                <p className="text-xs font-medium text-gray-500 mt-1">day streak</p>
               </div>
             </div>
+          </div>
 
-            {/* Top Moods */}
-            <div className="bg-white rounded-xl p-5 shadow-sm">
-              <p className="text-gray-500 text-sm mb-3">Top Moods This Month</p>
+          {/* Top 3 Moods - Right Column */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <p className="text-xs font-medium text-gray-500 mb-3">Top 3 Moods</p>
 
-              {topMoods.length > 0 ? (
-                <div className="space-y-2">
-                  {topMoods.map((mood, index) => (
-                    <div key={index} className="flex items-center">
-                      <div
-                        className={`w-3 h-3 rounded-full mr-2 ${getColorForMood(mood.name)}`}
-                      ></div>
-                      <span className="text-gray-800 capitalize">{mood.name}</span>
-                      <span className="ml-auto text-gray-500 text-sm">{mood.ratio}</span>
+            {topMoods.length > 0 ? (
+              <div className="space-y-3">
+                {topMoods.map((mood, index) => (
+                  <div key={index} className="flex items-center">
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center mr-2 bg-mood-${mood.name.toLowerCase()}`}
+                    >
+                      <Image
+                        src={mood.imagePath}
+                        alt={mood.name}
+                        width={18}
+                        height={18}
+                        className="object-contain"
+                      />
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 italic">No mood data yet</p>
-              )}
-            </div>
-          </div>
-
-          {/* Today's Mood Card */}
-          <div className="mt-6">
-            <MoodCard
-              emotions={emotions}
-              existingMood={existingMood}
-              onMoodSelect={saveMoodEntry}
-            />
-          </div>
-
-          {/* Calendar Section */}
-          <div className="mt-8">
-            <h2 className="text-xl font-medium text-gray-700 mb-4">Your Mood Calendar</h2>
-            <CalendarMoodView />
+                    <span className="text-xs font-medium text-gray-700 capitalize flex-1 truncate">
+                      {mood.name}
+                    </span>
+                    <span className="text-xs text-gray-500">{mood.count}d</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center text-center py-4">
+                <p className="text-sm text-gray-400">No data yet</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -207,22 +249,22 @@ export default async function Page() {
   );
 }
 
-// Helper function to get the right color class for each mood
-function getColorForMood(mood) {
+// Helper function to get background colors for mood cards
+function getMoodCardColor(mood) {
   const moodColors = {
-    happy: "bg-green-400",
-    sad: "bg-blue-300",
-    calm: "bg-sky-400",
-    angry: "bg-red-400",
-    anxious: "bg-purple-300",
-    neutral: "bg-gray-300",
-    stressed: "bg-orange-300",
-    excited: "bg-yellow-300",
-    tired: "bg-indigo-300",
-    confused: "bg-pink-300",
-    grateful: "bg-teal-400",
-    loved: "bg-rose-300",
+    happy: "bg-green-100",
+    sad: "bg-blue-100",
+    calm: "bg-sky-100",
+    angry: "bg-red-100",
+    anxious: "bg-purple-100",
+    neutral: "bg-gray-100",
+    stressed: "bg-orange-100",
+    excited: "bg-yellow-100",
+    tired: "bg-indigo-100",
+    confused: "bg-pink-100",
+    grateful: "bg-teal-100",
+    loved: "bg-rose-100",
   };
 
-  return moodColors[mood.toLowerCase()] || "bg-gray-300";
+  return moodColors[mood?.toLowerCase()] || "bg-gray-100";
 }

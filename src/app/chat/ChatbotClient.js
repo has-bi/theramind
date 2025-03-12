@@ -44,15 +44,25 @@ export default function ChatbotClient({ initialEmotionContext }) {
     // Tandai bahwa kita sekarang di client side
     setIsClient(true);
 
-    // Prioritaskan initialEmotionContext dari server, gunakan localStorage sebagai fallback
-    if (!initialEmotionContext) {
-      const storedEmotion = localStorage.getItem("emotion_context");
-      if (storedEmotion) {
-        setEmotionContext(storedEmotion);
-      }
-    } else {
-      // Simpan emotion context dari server ke localStorage untuk konsistensi
+    // PERUBAHAN: Prioritaskan localStorage karena itu adalah pilihan user terbaru
+    const storedEmotion = localStorage.getItem("emotion_context");
+
+    // Log untuk debugging
+    console.log("Emotion context priority:", {
+      localStorage: storedEmotion,
+      initialFromServer: initialEmotionContext,
+    });
+
+    if (storedEmotion) {
+      // Gunakan nilai dari localStorage (pilihan user terbaru)
+      setEmotionContext(storedEmotion);
+      console.log("Using emotion from localStorage:", storedEmotion);
+    } else if (initialEmotionContext) {
+      // Jika tidak ada di localStorage, gunakan nilai dari server
+      setEmotionContext(initialEmotionContext);
+      // Simpan juga ke localStorage
       localStorage.setItem("emotion_context", initialEmotionContext);
+      console.log("Using emotion from server:", initialEmotionContext);
     }
 
     // Cek apakah recap baru saja selesai
@@ -177,7 +187,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
           <h1 className="text-lg font-semibold text-gray-800">Mindly Chatbot</h1>
           {/* Hanya tampilkan emotionContext saat di client */}
           {isClient && emotionContext && (
-            <p className="text-sm text-gray-600">Today Emotion: {emotionContext}</p>
+            <p className="text-sm text-gray-600">Today&apos;s Emotion: {emotionContext}</p>
           )}
         </div>
         <div className="flex space-x-2">
