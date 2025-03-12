@@ -79,7 +79,7 @@ const MoodCard = ({ emotions, existingMood = null, onMoodSelect }) => {
         <div className="flex items-center justify-between">
           {/* Left side - Text with hierarchy */}
           <div className="text-left">
-            <p className="text-xs text-gray-800 mb-1">Today you're feeling</p>
+            <p className="text-xs text-gray-800 mb-1">Today you&apos;re feeling</p>
             <h3 className="text-2xl font-bold capitalize text-gray-800 mb-1">{mood}</h3>
           </div>
 
