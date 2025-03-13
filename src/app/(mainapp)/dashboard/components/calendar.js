@@ -4,7 +4,7 @@ import React from "react";
 import { useState } from "react";
 import PageDetails from "./pagedetails";
 
-export default function Calendar({ currentDate, moodData, onChangeMonth }) {
+export default function Calendar({ currentDate, moodData, onChangeMonth, onDateClick }) {
   const MOOD_COLORS = {
     happy: "bg-mood-happy",
     sad: "bg-mood-sad",
@@ -29,8 +29,8 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
     return dateString === todayString;
   };
 
-  const handleDateClick = dateString => {
-    console.log("Selected date:", dateString);
+  const formatDateString = (year, month, day) => {
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   };
 
   const generateCalendarDays = () => {
@@ -147,12 +147,13 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
         {generateCalendarDays().map((dayInfo, index) => {
           const isToday = isCurrentDate(dayInfo.dateString);
           const hasMood = !!dayInfo.mood;
-          const moodClass = hasMood ? MOOD_COLORS[dayInfo.mood.toLowerCase()] : "";
+          const moodClass = hasMood ? MOOD_COLORS[dayInfo.mood.emotionName.toLowerCase()] : "";
 
           return (
             <div
               key={`day-${index}`}
-              className="relative h-8"
+              className={`relative h-8
+                ${hasMood ? "cursor-pointer" : "cursor-default"}`}
               onClick={() => (onDateClick ? onDateClick(dayInfo.dateString) : null)}
             >
               {dayInfo && (
@@ -170,7 +171,7 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
                           : "text-gray-700"
                       }
                       ${isToday ? "ring-2 ring-indigo-500" : ""}
-                      ${hasMood || isToday ? "cursor-pointer" : ""}
+                      ${hasMood || isToday ? "cursor-pointer" : "cursor-default"}
                       transition-all text-sm
                     `}
                   >
@@ -198,16 +199,6 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
           ))}
         </div>
       </div>
-      {selectedMood && (
-        <PageDetails
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          emotionData={{
-            type: selectedMood.type,
-            createdAt: selectedMood.createdAt,
-          }}
-        />
-      )}
     </div>
   );
 }

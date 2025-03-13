@@ -29,6 +29,7 @@ export async function getMoodData(sessionId) {
       },
       include: {
         emotion: true,
+        journalAI: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -36,6 +37,7 @@ export async function getMoodData(sessionId) {
     });
 
     console.log(`Found ${moodEntries.length} mood entries for user`);
+    // console.log(moodEntries);
 
     // Format the data for the calendar (one mood per day)
     const formattedData = {};
@@ -43,7 +45,11 @@ export async function getMoodData(sessionId) {
       const dateString = entry.createdAt.toISOString().split("T")[0];
       // Only keep the first entry for each day if there are multiple
       if (!formattedData[dateString]) {
-        formattedData[dateString] = entry.emotion.name;
+        formattedData[dateString] = {
+          createdAt: entry.createdAt,
+          emotionName: entry.emotion.name,
+          recap: entry.journalAI?.recap || "No recap available",
+        };
         console.log(`Mood for ${dateString}: ${entry.emotion.name}`);
       }
     });
