@@ -6,52 +6,52 @@ import { Modal, ModalContent, ModalBody, Button } from "@heroui/react";
 export default function PageDetails({ isOpen, onClose, emotionData }) {
   const emotionStyles = {
     happy: {
-      color: "bg-yellow-100 border-yellow-300",
-      textColor: "text-yellow-800",
+      color: "bg-mood-happy border-mood-happy",
+      textColor: "text-mood-happy",
     },
     sad: {
-      color: "bg-blue-100 border-blue-300",
-      textColor: "text-blue-800",
+      color: "bg-mood-sad border-mood-sad",
+      textColor: "text-mood-sad",
     },
     calm: {
-      color: "bg-green-100 border-green-300",
-      textColor: "text-green-800",
+      color: "bg-mood-calm border-mood-calm",
+      textColor: "text-mood-calm",
     },
     angry: {
-      color: "bg-red-100 border-red-300",
-      textColor: "text-red-800",
+      color: "bg-mood-angry boder-mood-angry",
+      textColor: "text-mood-angry",
     },
     anxious: {
-      color: "bg-purple-100 border-purple-300",
-      textColor: "text-purple-800",
+      color: "bg-mood-anxious border-mood-anxious",
+      textColor: "text-mood-anxious",
     },
     neutral: {
-      color: "bg-gray-100 border-gray-300",
-      textColor: "text-gray-800",
+      color: "bg-mood-neutral border-mood-neutral",
+      textColor: "text-mood-neutral",
     },
     stressed: {
-      color: "bg-orange-100 border-orange-300",
-      textColor: "text-orange-800",
+      color: "bg-mood-stressed border-stressed",
+      textColor: "text-mood-stressed",
     },
     excited: {
-      color: "bg-teal-100 border-teal-300",
-      textColor: "text-teal-800",
+      color: "bg-mood-excited border-mood-excited",
+      textColor: "text-mood-excited",
     },
     tired: {
-      color: "bg-sky-100 border-sky-300",
-      textColor: "text-sky-800",
+      color: "bg-mood-tired border-mood-tired",
+      textColor: "text-mood-tired",
     },
     confused: {
-      color: "bg-violet-100 border-violet-300",
-      textColor: "text-violet-800",
+      color: "bg-mood-confused border-mood-confused",
+      textColor: "text-mood-confused",
     },
     loved: {
-      color: "bg-pink-100 border-pink-300",
-      textColor: "text-pink-800",
+      color: "bg-mood-loved border-mood-loved",
+      textColor: "text-mood-loved",
     },
     grateful: {
-      color: "bg-lime-100 border-lime-300",
-      textColor: "text-lime-800",
+      color: "bg-mood-grateful border-mood-grateful",
+      textColor: "text-mood-grateful",
     },
   };
 
