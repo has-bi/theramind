@@ -23,58 +23,78 @@ export async function validateSession() {
     });
 
     if (session) {
-      redirect("/emotion");
+      redirect("/dashboard");
     }
   }
 }
 
 export async function loginAction(_, formData) {
-  const cookieStore = await cookies();
-  const email = await formData.get("email");
-  const password = await formData.get("password");
+  try {
+    const cookieStore = await cookies();
+    const email = formData.get("email")?.toString().trim();
+    const password = formData.get("password")?.toString();
 
-  if (!email || !password) {
+    if (!email || !password) {
+      return {
+        success: false,
+        message: "Email and password are required!",
+      };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "Invalid email or password!", // Better security to be vague about which is wrong
+      };
+    }
+
+    // Check if user has a password (might not if they registered with Google)
+    if (!user.password) {
+      return {
+        success: false,
+        message: "Please log in with Google or reset your password.",
+      };
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) {
+      return {
+        success: false,
+        message: "Invalid email or password!", // Same vague message for security
+      };
+    }
+
+    // Create a new session
+    const expirationDate = new Date(Date.now() + 60 * 60 * 24 * 7 * 1000); // 7 days
+    const newSession = await prisma.session.create({
+      data: {
+        userId: user.id,
+        expires: expirationDate,
+      },
+    });
+
+    // Set the session cookie
+    cookieStore.set("sessionId", newSession.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      expires: expirationDate,
+      path: "/", // Add path for better cookie security
+    });
+
+    redirect("/dashboard");
+  } catch (error) {
+    console.error("Login error:", error);
     return {
       success: false,
-      message: "All fields are required!",
+      message: "An unexpected error occurred. Please try again.",
     };
   }
-
-  const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  });
-
-  if (!user) {
-    return {
-      success: false,
-      message: "User not found!",
-    };
-  }
-
-  const isPasswordMatch = await bcrypt.compare(password, user.password);
-
-  if (!isPasswordMatch) {
-    return {
-      success: false,
-      message: "Invalid password!",
-    };
-  }
-
-  const newSession = await prisma.session.create({
-    data: {
-      userId: user.id,
-      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), //7hari
-    },
-  });
-
-  cookieStore.set("sessionId", newSession.id, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    expires: newSession.expires,
-  });
-
-  redirect("/emotion");
 }
