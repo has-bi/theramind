@@ -154,7 +154,9 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
               key={`day-${index}`}
               className={`relative h-8
                 ${hasMood ? "cursor-pointer" : "cursor-default"}`}
-              onClick={() => (onDateClick ? onDateClick(dayInfo.dateString) : null)}
+              {...(hasMood && {
+                onClick: () => (onDateClick ? onDateClick(dayInfo.dateString) : null),
+              })}
             >
               {dayInfo && (
                 <>
