@@ -1,4 +1,5 @@
 import CalendarMoodView from "./calendarMoodView";
+import PageDetails from "./components/pagedetails";
 
 export default async function Page() {
   // i am deleting duplicated files and folders
@@ -9,6 +10,7 @@ export default async function Page() {
       <header className="font-bold text-3xl text-center">Dashboard</header>
       <main>
         <CalendarMoodView />
+        <PageDetails />
       </main>
     </div>
   );

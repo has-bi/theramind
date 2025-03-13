@@ -1,8 +1,13 @@
 "use client";
 
 import React from "react";
+import { useState } from "react";
+import PageDetails from "./pagedetails";
 
 export default function Calendar({ currentDate, moodData, onChangeMonth }) {
+  const [selectedMood, setSelectedMood] = useState(null); // State untuk menyimpan mood yang dipilih
+  const [isModalOpen, setIsModalOpen] = useState(false); // State untuk mengontrol tampilan modal
+
   const MOOD_COLORS = {
     happy: "bg-green-500 text-white",
     sad: "bg-blue-300 text-blue-900",
@@ -28,7 +33,16 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
   };
 
   const handleDateClick = dateString => {
-    console.log("Selected date:", dateString);
+    const mood = moodData[dateString];
+    if (mood) {
+      setSelectedMood({
+        type: mood,
+        createdAt: dateString,
+      });
+      setIsModalOpen(true); // Buka modal jika ada data mood
+    } else {
+      console.log("No mood data for this date:", dateString);
+    }
   };
 
   const generateCalendarDays = () => {
@@ -179,6 +193,16 @@ export default function Calendar({ currentDate, moodData, onChangeMonth }) {
           </div>
         ))}
       </div>
+      {selectedMood && (
+        <PageDetails
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          emotionData={{
+            type: selectedMood.type,
+            createdAt: selectedMood.createdAt,
+          }}
+        />
+      )}
     </div>
   );
 }
