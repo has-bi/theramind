@@ -68,7 +68,7 @@ export default function Page() {
         <OauthButton />
 
         <p className="text-center text-sm text-gray-600">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <a href="/register" className="font-medium text-indigo-600 hover:text-indigo-700">
             Register
           </a>
