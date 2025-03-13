@@ -10,7 +10,7 @@ export default async function BlogPage({ searchParams }) {
   console.log("posts", posts);
 
   return (
-    <div className="mobile-container w-full max-w-[480px] bg-white min-h-screen px-4 py-8">
+    <div className=" min-h-screen px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">TheraMind Blog</h1>
 
       <BlogFilter moods={moods} selectedMood={selectedMood} />

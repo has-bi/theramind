@@ -7,8 +7,8 @@ export default function Page() {
   const [state, formAction, pending] = useActionState(loginAction, null);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen items-center justify-center p-4">
+      <div className="">
         <div className="text-center">
           <h1 className="text-2xl font-semibold">Login</h1>
           <p className="text-sm text-gray-600 mt-2">login with your account</p>
@@ -38,7 +38,7 @@ export default function Page() {
           {!state?.success && <div>{state?.message}</div>}
           <button
             disabled={pending}
-            className="w-full bg-indigo-600 text-white rounded-lg py-3 font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full bg-indigo-600 text-white rounded-md py-3 font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Login
           </button>

@@ -68,12 +68,12 @@ export const MarkDownRenderer = ({ content }) => {
           return <ol {...props} className="my-1 pl-1 list-decimal list-inside" />;
         },
         li: props => {
-          return <li {...props} className="list-disc list-item list-inside mb-0.5" />;
+          return <li {...props} className="list-disc list-item list-inside mb-0" />;
         },
 
         // Paragraph styling with better line height
         p: props => {
-          return <p {...props} className="my-2 leading-relaxed text-left" />;
+          return <p {...props} className="my-2 leading-relaxed text-left p-0 m-0" />;
         },
 
         // Quote styling
