@@ -50,11 +50,7 @@ export default function Page() {
 
           <button
             disabled={pending}
-<<<<<<< HEAD
-            className="w-full bg-indigo-600 text-white rounded-md py-3 font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-=======
             className="w-full bg-indigo-600 text-white rounded-lg py-3 font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
->>>>>>> staging
           >
             {pending ? "Logging in..." : "Login"}
           </button>
