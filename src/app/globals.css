@@ -15,18 +15,18 @@
 /* Emotion color variables - Extract exactly from the mood images */
 :root {
   /* Primary Emotion Colors */
-  --color-happy: #ffe8d1;
-  --color-sad: #34d2e0;
-  --color-calm: #c0f9b1;
-  --color-angry: #ff7a59;
-  --color-anxious: #ba9eeb;
-  --color-neutral: #d9d9d9;
-  --color-stressed: #ff9d25;
-  --color-excited: #3edbbe;
-  --color-tired: #bdcfff;
-  --color-confused: #c19eff;
-  --color-loved: #ff88ae;
-  --color-grateful: #fdea77;
+  --color-happy: #ffe7d1;
+  --color-sad: #25c3d9;
+  --color-calm: #b3ffb3;
+  --color-angry: #ff7156;
+  --color-anxious: #8e7ddc;
+  --color-neutral: #dbdbdb;
+  --color-stressed: #ff7600;
+  --color-excited: #39d9b7;
+  --color-tired: #c0cbff;
+  --color-confused: #bd92e2;
+  --color-loved: #ef6ea5;
+  --color-grateful: #f8f282;
 }
 
 html,

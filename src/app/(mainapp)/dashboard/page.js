@@ -5,6 +5,7 @@ import { saveMoodEntry } from "./mood-actions";
 import CalendarMoodView from "./calendarMoodView";
 import { getMoodData } from "@/app/api/calendar/getMoodData";
 import Image from "next/image";
+import DashboardSkeleton from "./components/DashboardSkeleton";
 
 export default async function Page() {
   // Get session ID from cookie
@@ -184,7 +185,7 @@ export default async function Page() {
       </header>
 
       <div className="page-container">
-        {/* 1. MOOD CARD - Primary section */}
+        {/* MOOD CARD  */}
         <div className="mb-8">
           <h2 className="text-base font-semibold text-gray-700 mb-3">
             {existingMood ? "Today's Mood" : "How are you feeling?"}
@@ -196,7 +197,7 @@ export default async function Page() {
           />
         </div>
 
-        {/* 2. CALENDAR - Second section */}
+        {/* CALENDAR */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-base font-semibold text-gray-700">Your Mood Calendar</h2>
@@ -206,7 +207,7 @@ export default async function Page() {
           </div>
         </div>
 
-        {/* 3. STATS - Bottom section */}
+        {/* STATS */}
         <div className="mb-20">
           <h2 className="text-base font-semibold text-gray-700 mb-3">Your Stats</h2>
           <div className="flex flex-col gap-4">
