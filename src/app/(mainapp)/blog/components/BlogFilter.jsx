@@ -28,7 +28,7 @@ export default function BlogFilter({ moods, selectedMood }) {
         id="mood-filter"
         value={selectedMood}
         onChange={handleMoodChange}
-        className="w-full md:w-64 p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+        className="w-full md:w-64 p-2 rounded-md focus:ring-2 focus:ring-indigo-600 shadow-md"
       >
         <option value="">neutral</option>
         {moods.map(mood => (
