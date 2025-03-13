@@ -19,7 +19,7 @@ model User {
   password    String?
   firstName   String
   lastName    String
-  age         Int
+  birthDate   DateTime
   gender      String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

@@ -43,6 +43,8 @@ export async function GET(req) {
         lastName,
         email: data.email,
         googleId: data.sub,
+        birthDate: new Date("2000-01-01"),
+        gender: "Prefer not to say",
       },
     });
   }

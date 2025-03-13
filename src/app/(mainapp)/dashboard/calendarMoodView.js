@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { getMoodData } from "@/app/api/calendar/getMoodData";
 import CalendarClient from "./components/CalendarClient";
 
+
 export default async function CalendarMoodView() {
   // Get session ID from cookies
   const cookieStore = await cookies();
