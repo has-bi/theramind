@@ -1,7 +1,7 @@
 import { format, addDays, startOfWeek, endOfWeek, getDate } from "date-fns";
 import { UserIcon, BellIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { PencilSquareIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import { prisma } from "../utils/prisma";
+import { prisma } from "@/utils/prisma";
 
 export default async function ProfilePage() {
   const users = await prisma.user.findUnique({
@@ -38,9 +38,7 @@ export default async function ProfilePage() {
   // Generate Kalender Mood Streak
   const moodWeek = Array.from({ length: 7 }, (_, i) => {
     const date = addDays(startOfWeek, i);
-    const mood = moods.find(
-      (m) => format(m.createdAt, "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
-    );
+    const mood = moods.find(m => format(m.createdAt, "yyyy-MM-dd") === format(date, "yyyy-MM-dd"));
     return {
       day: format(date, "EEE"),
       date: format(date, "MMM d"),
@@ -64,15 +62,10 @@ export default async function ProfilePage() {
 
       {/* Mood Card */}
       <div className="bg-white p-4 rounded-lg shadow-md mx-4 mt-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">
-          Mood Streak
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">Mood Streak</h3>
         <div className="grid grid-cols-7 gap-2">
           {moodWeek.map((day, index) => (
-            <div
-              key={index}
-              className="text-center p-2 border rounded-lg bg-gray-100"
-            >
+            <div key={index} className="text-center p-2 border rounded-lg bg-gray-100">
               <p className="text-sm text-gray-500">{day.day}</p>
               <p className="text-xs text-gray-500">{day.date}</p>
               <p className="text-xs font-semibold text-gray-700">{day.mood}</p>
@@ -83,9 +76,7 @@ export default async function ProfilePage() {
 
       {/* Mood Statistics */}
       <div className="bg-white p-4 rounded-lg shadow-md mx-4 mt-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">
-          Mood Statistics
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">Mood Statistics</h3>
         <div className="flex justify-between">
           {Object.entries(moodStats).map(([mood, count], index) => (
             <div key={index} className="text-center">
@@ -110,9 +101,7 @@ export default async function ProfilePage() {
 const NavItem = ({ title, Icon, active, onClick }) => (
   <button
     onClick={onClick}
-    className={`flex flex-col items-center ${
-      active ? "text-indigo-500" : "text-gray-400"
-    }`}
+    className={`flex flex-col items-center ${active ? "text-indigo-500" : "text-gray-400"}`}
   >
     <Icon className="h-6 w-6" />
     <span className="text-xs mt-1">{title}</span>

@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
-import { useState, useActionState } from "react";
+import { useState } from "react";
 import { createMoodAction } from "./mood-Action";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export const EmojiForm = () => {
   const [selectedEmotion, setSelectedEmotion] = useState(null);
-  const [state, formAction, pending] = useActionState(createMoodAction, null);
+  const [pending, setPending] = useState(false);
+  const [formError, setFormError] = useState(null);
+  const router = useRouter();
 
   const emotions = [
     { id: 1, label: "Happy", imagePath: "/images/emotions/happy.png", value: "Happy" },
@@ -26,39 +29,59 @@ export const EmojiForm = () => {
 
   const handleEmotionClick = emotion => {
     setSelectedEmotion(emotion);
+    setFormError(null);
   };
 
-  const handleFormAction = async formData => {
-    if (selectedEmotion) {
-      formData.set("emotionId", selectedEmotion.id);
-      formData.set("label", selectedEmotion.label);
-      formData.set("imagePath", selectedEmotion.imagePath);
-      formData.set("value", selectedEmotion.value);
+  // PERUBAHAN: Menggunakan formData untuk pemanggilan server action secara manual
+  const handleSubmit = async e => {
+    e.preventDefault();
 
-      // PENTING: Simpan emotion ke localStorage sebagai fallback
-      // Ini memastikan data masih tersedia meskipun ada masalah dengan cookies/session
+    if (!selectedEmotion) {
+      setFormError("Please select an emotion first");
+      return;
+    }
+
+    try {
+      setPending(true);
+      console.log("Submitting form with emotion:", selectedEmotion);
+
+      // Buat FormData
+      const formData = new FormData();
+      formData.append("emotionId", selectedEmotion.id);
+      formData.append("label", selectedEmotion.label);
+      formData.append("imagePath", selectedEmotion.imagePath);
+      formData.append("value", selectedEmotion.value);
+
+      // Simpan ke localStorage
       if (typeof window !== "undefined") {
         localStorage.setItem("emotion_context", selectedEmotion.value);
         localStorage.setItem("emotion_id", selectedEmotion.id);
         console.log("Saved emotion to localStorage:", selectedEmotion.value);
       }
 
-      const result = await formAction(formData);
+      // Panggil server action secara manual
+      console.log("Calling server action...");
+      const result = await createMoodAction(null, formData);
+      console.log("Server action result:", result);
 
       if (result?.success) {
-        // Menggunakan result.redirect dari server action jika ada
-        if (result.redirect) {
-          window.location.href = result.redirect;
-        } else {
-          // Fallback ke /chat jika tidak ada redirect dari server
-          window.location.href = "/chat";
-        }
+        console.log("Success! Redirecting to /chat");
+        // PERUBAHAN: Gunakan router dari next/navigation
+        router.push("/chat");
       } else if (result?.error) {
-        console.log(result.error);
-        alert(result.error || "Failed to save your emotion");
+        console.error("Server returned error:", result.error);
+        setFormError(result.error || "Failed to save your emotion");
+      } else {
+        // PERUBAHAN: Hanya redirect ke /chat jika result tidak terdefinisi atau tidak memiliki properti yang diharapkan
+        console.log("No specific result, redirecting to /chat");
+        router.push("/chat");
       }
+    } catch (error) {
+      console.error("Client-side error in form submission:", error);
+      setFormError(error.message || "An unexpected error occurred");
+    } finally {
+      setPending(false);
     }
-    return null;
   };
 
   return (
@@ -69,14 +92,15 @@ export const EmojiForm = () => {
         </h1>
       </div>
 
-      <form action={handleFormAction} className="px-4 pb-6">
-        <input type="hidden" name="userId" value={selectedEmotion?.id || ""} />
-        <input type="hidden" name="emotionId" value={selectedEmotion?.id || ""} />
+      {formError && (
+        <div className="mx-4 mb-4 p-2 bg-red-50 text-red-500 text-sm rounded">{formError}</div>
+      )}
 
+      {/* PERUBAHAN: Gunakan onSubmit alih-alih action */}
+      <form onSubmit={handleSubmit} className="px-4 pb-6">
         <div className="grid grid-cols-3 gap-4 mb-8">
           {emotions.map(emotion => (
             <div key={emotion.id} className="flex flex-col items-center">
-              {/* Emotion button using the square shape with rounded corners */}
               <button
                 type="button"
                 onClick={() => handleEmotionClick(emotion)}
@@ -87,10 +111,7 @@ export const EmojiForm = () => {
                       : ""
                   }`}
               >
-                {/* Colored background */}
                 <div className={`absolute inset-0 ${emotion.color}`}></div>
-
-                {/* Emotion image centered inside the button */}
                 <div className="relative z-10 flex items-center justify-center w-full h-full">
                   <Image
                     src={emotion.imagePath}
@@ -102,8 +123,6 @@ export const EmojiForm = () => {
                   />
                 </div>
               </button>
-
-              {/* Emotion label underneath */}
               <span className="text-xs text-center text-gray-700 mt-2">{emotion.label}</span>
             </div>
           ))}

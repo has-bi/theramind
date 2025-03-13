@@ -1,24 +1,10 @@
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 const MoodCard = ({ emotions, existingMood = null, onMoodSelect }) => {
   const [mood, setMood] = useState(existingMood);
-
-  // Emotion to color mapping - matching the calendar component colors
-  const moodColors = {
-    happy: "bg-green-400",
-    sad: "bg-blue-300",
-    calm: "bg-sky-400",
-    angry: "bg-red-400",
-    anxious: "bg-purple-300",
-    neutral: "bg-gray-300",
-    stressed: "bg-orange-300",
-    excited: "bg-yellow-300",
-    tired: "bg-indigo-300",
-    confused: "bg-pink-300",
-    grateful: "bg-teal-400",
-    loved: "bg-rose-300",
-  };
 
   const handleMoodSelect = async selectedMood => {
     setMood(selectedMood);
@@ -29,21 +15,45 @@ const MoodCard = ({ emotions, existingMood = null, onMoodSelect }) => {
     }
   };
 
-  const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  // Find matching emotion to get image path - handle both label and value fields
+  const getMatchingEmotion = (emotions, moodName) => {
+    if (!moodName || !emotions?.length) return null;
+
+    const lowerMood = moodName.toLowerCase();
+
+    // Try matching by label
+    let match = emotions.find(e => e.label?.toLowerCase() === lowerMood);
+
+    // If no match by label, try matching by value
+    if (!match) {
+      match = emotions.find(e => e.value?.toLowerCase() === lowerMood);
+    }
+
+    // If still no match, try matching by name if available
+    if (!match) {
+      match = emotions.find(e => e.name?.toLowerCase() === lowerMood);
+    }
+
+    return match;
+  };
+
+  const matchingEmotion = getMatchingEmotion(emotions, mood);
+  const imagePath =
+    matchingEmotion?.imagePath || `/images/emotions/${mood?.toLowerCase() || "neutral"}.png`;
 
   // Get the background color class based on mood
-  const cardBgColor = mood ? moodColors[mood.toLowerCase()] || "bg-white" : "bg-white";
+  const moodLower = mood?.toLowerCase() || "";
 
   return (
     <div
-      className={`rounded-xl p-5 shadow-sm w-full max-w-md transition-all duration-300 ${
-        mood ? cardBgColor : "bg-white border border-gray-100"
+      className={`mood-card p-4 w-full max-w-md ${
+        mood ? `bg-mood-${moodLower}-light` : "bg-white"
       }`}
     >
       {!mood ? (
         // Add new mood state - only shows when no mood is recorded
         <div className="flex flex-col items-center justify-center py-6">
-          <a
+          <Link
             href="/mood"
             className="w-16 h-16 mb-4 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors"
           >
@@ -61,16 +71,30 @@ const MoodCard = ({ emotions, existingMood = null, onMoodSelect }) => {
             >
               <path d="M12 5v14M5 12h14" />
             </svg>
-          </a>
-          <p className="text-gray-600 font-medium">How was your feeling today?</p>
+          </Link>
+          <p className="text-gray-600 font-medium">How are you feeling today?</p>
         </div>
       ) : (
-        // Mood already selected state - no edit option
-        <div className="flex items-start">
-          <div>
-            <div className="text-sm text-gray-600 mb-2">{currentTime}</div>
-            <h3 className="text-xl font-medium text-gray-800 mb-1">Today you&apos;re feeling</h3>
-            <p className="text-2xl font-semibold text-gray-900 capitalize">{mood}</p>
+        // Mood already selected state with text on left, image on right
+        <div className="flex items-center justify-between">
+          {/* Left side - Text with hierarchy */}
+          <div className="text-left">
+            <p className="text-xs text-gray-800 mb-1">Today you&apos;re feeling</p>
+            <h3 className="text-2xl font-bold capitalize text-gray-800 mb-1">{mood}</h3>
+          </div>
+
+          {/* Right side - Emotion icon */}
+          <div className="flex-shrink-0 ml-4">
+            {imagePath && (
+              <Image
+                src={imagePath}
+                alt={mood || "Mood"}
+                width={70}
+                height={70}
+                className="object-contain"
+                priority
+              />
+            )}
           </div>
         </div>
       )}
