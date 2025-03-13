@@ -9,9 +9,14 @@ export function generateStaticParams() {
 
   return files
     .filter(filename => filename.endsWith(".mdx"))
-    .map(filename => ({
-      slug: filename.replace(/\.mdx$/, ""),
-    }));
+    .map(filename => {
+      const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", filename);
+      const fileContents = fs.readFileSync(filePath, "utf-8");
+      const { data } = matter(fileContents);
+      return {
+        slug: data.slug,
+      };
+    });
 }
 
 // Generate metadata from frontmatter
@@ -19,12 +24,30 @@ export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  console.log({ slug });
-
-  const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", `${slug}.mdx`);
-
   try {
-    // Read file and parse frontmatter
+    const files = fs.readdirSync(path.join(process.cwd(), "src/app/(mainapp)/blog/content"));
+    let targetFile = null;
+
+    // Find the file with matching slug in frontmatter
+    for (const filename of files) {
+      const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", filename);
+      const fileContents = fs.readFileSync(filePath, "utf-8");
+      const { data } = matter(fileContents);
+      
+      if (data.slug === slug) {
+        targetFile = filename;
+        break;
+      }
+    }
+
+    if (!targetFile) {
+      return {
+        title: "Blog Post Not Found",
+        description: "Blog post not found",
+      };
+    }
+
+    const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", targetFile);
     const markdownWithMeta = fs.readFileSync(filePath, "utf-8");
     const { data } = matter(markdownWithMeta);
 
@@ -42,15 +65,26 @@ export async function generateMetadata({ params }) {
 
 // Main component - using Server Component pattern
 export default async function BlogPage({ params }) {
-  // Properly await params
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
   try {
-    // Read MDX file
-    const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", `${slug}.mdx`);
+    const files = fs.readdirSync(path.join(process.cwd(), "src/app/(mainapp)/blog/content"));
+    let targetFile = null;
 
-    if (!fs.existsSync(filePath)) {
+    // Find the file with matching slug in frontmatter
+    for (const filename of files) {
+      const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", filename);
+      const fileContents = fs.readFileSync(filePath, "utf-8");
+      const { data } = matter(fileContents);
+      
+      if (data.slug === slug) {
+        targetFile = filename;
+        break;
+      }
+    }
+
+    if (!targetFile) {
       return (
         <div className="max-w-4xl mx-auto px-4 py-8">
           <h1 className="text-2xl font-bold text-red-500">Blog Post Not Found</h1>
@@ -59,7 +93,7 @@ export default async function BlogPage({ params }) {
       );
     }
 
-    // Read and parse MDX
+    const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", targetFile);
     const fileContents = fs.readFileSync(filePath, "utf-8");
     const { data: frontmatter, content } = matter(fileContents);
 

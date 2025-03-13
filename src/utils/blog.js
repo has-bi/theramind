@@ -11,14 +11,13 @@ export function getAllPosts() {
     return filenames
       .filter(filename => filename.endsWith(".mdx"))
       .map(filename => {
-        const slug = filename.replace(/\.mdx$/, "");
         const fullPath = path.join(contentDirectory, filename);
         const fileContents = fs.readFileSync(fullPath, "utf8");
         const { data } = matter(fileContents);
 
         return {
-          slug,
-          title: data.title || slug,
+          slug: data.slug || filename.replace(/\.mdx$/, ""), // Use frontmatter slug or fallback to filename
+          title: data.title || data.slug,
           excerpt: data.excerpt || "",
           date: data.date || new Date().toISOString(),
           author: data.author || "Theramind",
@@ -55,19 +54,33 @@ export function getAllMoods() {
 
 export function getPostBySlug(slug) {
   try {
-    const fullPath = path.join(contentDirectory, `${slug}.mdx`);
+    // We need to find the file that matches the slug in frontmatter
+    const filenames = fs.readdirSync(contentDirectory);
+    let targetFile = null;
 
-    if (!fs.existsSync(fullPath)) {
+    for (const filename of filenames) {
+      const fullPath = path.join(contentDirectory, filename);
+      const fileContents = fs.readFileSync(fullPath, "utf8");
+      const { data } = matter(fileContents);
+      
+      if (data.slug === slug) {
+        targetFile = filename;
+        break;
+      }
+    }
+
+    if (!targetFile) {
       return null;
     }
 
+    const fullPath = path.join(contentDirectory, targetFile);
     const fileContents = fs.readFileSync(fullPath, "utf8");
     const { data, content } = matter(fileContents);
 
     return {
-      slug,
+      slug: data.slug,
       content,
-      title: data.title || slug,
+      title: data.title || data.slug,
       excerpt: data.excerpt || "",
       date: data.date || new Date().toISOString(),
       author: data.author || "Anonymous",
