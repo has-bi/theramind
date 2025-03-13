@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Avatar from "boring-avatars";
+import { useRouter } from "next/navigation";
 
 // Conversation storage utility functions
 const STORAGE_KEY = "mindly_chat_history";
@@ -34,6 +35,7 @@ function clearMessagesFromStorage() {
 }
 
 export default function ChatbotClient({ initialEmotionContext }) {
+  const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [emotionContext, setEmotionContext] = useState(initialEmotionContext);
   const [emotionId, setEmotionId] = useState(null);
@@ -42,6 +44,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
   const [isLoading, setIsLoading] = useState(false);
   const [avatarSeed, setAvatarSeed] = useState("user");
   const messagesEndRef = useRef(null);
+  const [hasJournalEntry, setHasJournalEntry] = useState(false);
 
   // Map emotions to their color classes
   const emotionColors = {
@@ -138,27 +141,34 @@ export default function ChatbotClient({ initialEmotionContext }) {
         const userEmail = localStorage.getItem("user_email") || "user@example.com";
         setAvatarSeed(userEmail);
       }
+
+      // Check if a journal entry exists for today
+      const hasJournal = localStorage.getItem("has_journal_entry") === "true";
+      setHasJournalEntry(hasJournal);
+
+      // If we already have a journal entry, redirect to dashboard
+      if (hasJournal) {
+        router.push("/");
+        return;
+      }
     }
 
-    // Prioritize localStorage for emotion context
-    const storedEmotion = localStorage.getItem("emotion_context");
-    const storedEmotionId = localStorage.getItem("emotion_id");
-
-    console.log("Emotion context priority:", {
-      localStorage: storedEmotion,
-      initialFromServer: initialEmotionContext,
-    });
-
-    if (storedEmotion) {
-      setEmotionContext(storedEmotion);
-      if (storedEmotionId) {
-        setEmotionId(storedEmotionId);
-      }
-      console.log("Using emotion from localStorage:", storedEmotion);
-    } else if (initialEmotionContext) {
+    // Prioritize server-side emotion context over localStorage
+    // This is important because the server knows the correct current day's mood
+    if (initialEmotionContext) {
       setEmotionContext(initialEmotionContext);
       localStorage.setItem("emotion_context", initialEmotionContext);
-      console.log("Using emotion from server:", initialEmotionContext);
+    } else {
+      // Fall back to localStorage only if server doesn't provide a value
+      const storedEmotion = localStorage.getItem("emotion_context");
+      const storedEmotionId = localStorage.getItem("emotion_id");
+
+      if (storedEmotion) {
+        setEmotionContext(storedEmotion);
+        if (storedEmotionId) {
+          setEmotionId(storedEmotionId);
+        }
+      }
     }
 
     // Check if recap was just completed
@@ -167,7 +177,6 @@ export default function ChatbotClient({ initialEmotionContext }) {
     if (recapCompleted) {
       clearMessagesFromStorage();
       localStorage.removeItem("recap_completed");
-      console.log("Chat cleaned after recap completion");
 
       // Add a welcome back message after recap
       const welcomeBackMsg = {
@@ -183,18 +192,19 @@ export default function ChatbotClient({ initialEmotionContext }) {
       if (storedMessages.length > 0) {
         setMessages(storedMessages);
       } else {
-        // Add welcome message for new conversations
+        // Add welcome message for new conversations with the correct emotion
+        const emotionToUse =
+          initialEmotionContext || localStorage.getItem("emotion_context") || "a certain way";
+
         const welcomeMsg = {
           role: "assistant",
-          content: `Hi there! I see you're feeling ${
-            storedEmotion || initialEmotionContext || "a certain way"
-          } today. How can I help you with that?`,
+          content: `Hi there! I see you're feeling ${emotionToUse} today. How can I help you with that?`,
         };
         setMessages([welcomeMsg]);
         saveMessagesToStorage([welcomeMsg]);
       }
     }
-  }, [initialEmotionContext]);
+  }, [initialEmotionContext, router]);
 
   // Function to update messages and save to storage
   const updateMessages = newMessages => {
@@ -220,13 +230,23 @@ export default function ChatbotClient({ initialEmotionContext }) {
           emotionContext,
         }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        const updatedMessages = [...newMessages, { role: "assistant", content: data.reply }];
-        updateMessages(updatedMessages);
-      } else {
-        console.log("Chat error:", data.error);
+
+      if (!res.ok) {
+        const errorData = await res.json();
+
+        // If user has already completed their journal for today, reload page
+        if (res.status === 403 && errorData.error.includes("already completed")) {
+          localStorage.setItem("has_journal_entry", "true");
+          router.push("/");
+          return;
+        }
+
+        throw new Error(errorData.error || "Failed to send message");
       }
+
+      const data = await res.json();
+      const updatedMessages = [...newMessages, { role: "assistant", content: data.reply }];
+      updateMessages(updatedMessages);
     } catch (error) {
       console.log("Chat API error:", error);
       updateMessages([
@@ -257,23 +277,20 @@ export default function ChatbotClient({ initialEmotionContext }) {
         }),
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        // Save data for recap page
-        localStorage.setItem("current_recap", data.summary);
-        localStorage.setItem("emotion_context", emotionContext);
-
-        console.log("Saved to localStorage before redirect:", {
-          recapLength: data.summary.length,
-          emotion: emotionContext,
-        });
-
-        // Navigate to the recap display page
-        window.location.href = `/recap`;
-      } else {
-        console.log("Recap error:", data.error);
-        alert("Unable to generate recap. Please try again later.");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to generate recap");
       }
+
+      const data = await res.json();
+
+      // Save data for recap page
+      localStorage.setItem("current_recap", data.summary);
+      localStorage.setItem("emotion_context", emotionContext);
+      localStorage.setItem("has_journal_entry", "true");
+
+      // Navigate to the recap display page
+      router.push("/recap");
     } catch (error) {
       console.log("Error calling recap API:", error);
       alert("Error generating recap. Please try again.");

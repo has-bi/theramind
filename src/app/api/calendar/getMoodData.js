@@ -1,26 +1,36 @@
-import { prisma } from "@/utils/prisma"; // Adjust the import path as needed
+// app/api/calendar/getMoodData.js
+import { prisma } from "@/utils/prisma";
+import { convertToUTC7 } from "@/utils/dateTime";
 
 export async function getMoodData(sessionId) {
-  console.log("Getting mood data for session ID:", sessionId);
-
+  // Skip if no session ID
   if (!sessionId) {
-    console.log("No session ID provided, returning empty data");
     return {};
   }
 
   try {
+    // Only log if explicitly debugging
+    const isDebugging = process.env.DEBUG_MOOD_DATA === "true";
+
+    if (isDebugging) {
+      console.log("Getting mood data for session ID:", sessionId);
+    }
+
+    // Get the user ID from session
     const session = await prisma.session.findUnique({
       where: { id: sessionId },
       include: { user: true },
     });
 
-    if (!session) {
-      console.log("No session found for the provided session ID");
+    if (!session || !session.user) {
       return {};
     }
 
     const userId = session.user.id;
-    console.log("Found user ID:", userId);
+
+    if (isDebugging) {
+      console.log("Found user ID:", userId);
+    }
 
     // Get all mood entries for the user
     const moodEntries = await prisma.moodEntry.findMany({
@@ -35,23 +45,38 @@ export async function getMoodData(sessionId) {
       },
     });
 
-    console.log(`Found ${moodEntries.length} mood entries for user`);
+    if (isDebugging) {
+      console.log(`Found ${moodEntries.length} mood entries for user`);
+    }
 
-    // Format the data for the calendar (one mood per day)
+    // Format the data for the calendar
     const formattedData = {};
+
     moodEntries.forEach(entry => {
-      const dateString = entry.createdAt.toISOString().split("T")[0];
-      // Only keep the first entry for each day if there are multiple
-      if (!formattedData[dateString]) {
-        formattedData[dateString] = entry.emotion.name;
-        console.log(`Mood for ${dateString}: ${entry.emotion.name}`);
+      if (entry.emotion) {
+        // Adjust date to UTC+7 for display
+        const utcDate = new Date(entry.createdAt);
+        const utc7Date = convertToUTC7(utcDate);
+        const dateStr = utc7Date.toISOString().split("T")[0];
+
+        // Only keep the first mood entry for each day (most recent due to ordering)
+        if (!formattedData[dateStr]) {
+          formattedData[dateStr] = entry.emotion.name;
+
+          if (isDebugging) {
+            console.log(`Mood for ${dateStr}: ${entry.emotion.name}`);
+          }
+        }
       }
     });
 
-    console.log("Final formatted mood data:", formattedData);
+    if (isDebugging) {
+      console.log("Final formatted mood data:", formattedData);
+    }
+
     return formattedData;
   } catch (error) {
-    console.error("Error fetching mood data:", error);
+    console.error("Error getting mood data:", error);
     return {};
   }
 }
