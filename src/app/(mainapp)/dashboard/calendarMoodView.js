@@ -1,59 +1,20 @@
-"use client";
+import { cookies } from "next/headers";
+import { getMoodData } from "@/app/api/calendar/getMoodData";
+import CalendarClient from "./components/CalendarClient";
 
-import React, { useState, useEffect } from "react";
-import Calendar from "./components/calendar";
-import { format, formatDate } from "date-fns";
 
-export default function CalendarMoodView() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [moodData, setMoodData] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default async function CalendarMoodView() {
+  // Get session ID from cookies
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId")?.value;
 
-  const fetchMoodData = async () => {
-    try {
-      const response = await fetch("/api/calendar");
-      if (!response.ok) {
-        throw new Error("Failed to fetch mood data");
-      }
-      const data = await response.json();
+  console.log("Calendar page loaded with session ID:", sessionId);
 
-      const formattedMoodData = data.reduce((acc, entry) => {
-        const dateString = format(new Date(entry.createdAt), "yyyy-MM-dd");
-        acc[dateString] = entry.emotionName.toLowerCase();
-        return acc;
-      }, {});
+  // Fetch mood data on the server
+  const moodData = await getMoodData(sessionId);
 
-      setMoodData(formattedMoodData);
-    } catch (error) {
-      console.error("Error fetching mood data:", error);
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  console.log("Mood data fetched and ready to pass to client component");
 
-  useEffect(() => {
-    fetchMoodData();
-  }, []);
-
-  const handleChangeMonth = direction => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + direction);
-    setCurrentDate(newDate);
-  };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  return (
-    <div>
-      <Calendar currentDate={currentDate} moodData={moodData} onChangeMonth={handleChangeMonth} />
-    </div>
-  );
+  // Pass the data to the client component
+  return <CalendarClient initialMoodData={moodData} />;
 }
