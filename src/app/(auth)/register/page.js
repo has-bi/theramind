@@ -44,6 +44,36 @@ export default function Page() {
               className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
             />
           </div>
+
+          {/* New Age Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Age</label>
+            <input
+              name="age"
+              type="number"
+              min="1"
+              max="120"
+              placeholder="Your age"
+              className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          {/* New Gender Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Gender</label>
+            <select
+              name="gender"
+              className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Non-binary">Non-binary</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">Password</label>
             <div className="relative">
@@ -58,12 +88,22 @@ export default function Page() {
               Min 8 characters, including letters and numbers
             </p>
           </div>
-          {!state?.success && <div>{state?.message}</div>}
+
+          {/* Error message display */}
+          {state && !state.success && (
+            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{state.message}</div>
+          )}
+
+          {/* Success message display */}
+          {state && state.success && (
+            <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm">{state.message}</div>
+          )}
+
           <button
             disabled={pending}
-            className="w-full bg-indigo-600 text-white rounded-lg py-3 font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full bg-indigo-600 text-white rounded-lg py-3 font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
           >
-            Register
+            {pending ? "Registering..." : "Register"}
           </button>
         </form>
 

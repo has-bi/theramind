@@ -43,6 +43,8 @@ export async function GET(req) {
         lastName,
         email: data.email,
         googleId: data.sub,
+        age: 0, // Default value or you can use a placeholder value
+        gender: "Unspecified", // Default value
       },
     });
   }
