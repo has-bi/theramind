@@ -47,14 +47,13 @@ export default function Page() {
 
           {/* New Age Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Age</label>
+            <label className="block text-sm font-medium text-gray-700">Birth Date</label>
             <input
-              name="age"
-              type="number"
-              min="1"
-              max="120"
-              placeholder="Your age"
+              name="birthDate"
+              type="date"
+              max={new Date().toISOString().split("T")[0]} // Prevent future dates
               className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              required
             />
           </div>
 
