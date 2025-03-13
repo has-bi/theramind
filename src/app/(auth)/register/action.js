@@ -8,10 +8,10 @@ export async function registerAction(_, formData) {
   const lastName = formData.get("lastname");
   const email = formData.get("email");
   const password = formData.get("password");
-  const age = formData.get("age"); // Add if you have this in your form
-  const gender = formData.get("gender"); // Add if you have this in your form
+  const birthDate = formData.get("birthDate");
+  const gender = formData.get("gender");
 
-  if (!firstName || !lastName || !email || !password) {
+  if (!firstName || !lastName || !email || !password || !birthDate || !gender) {
     return {
       success: false,
       message: "All fields are required!",
@@ -68,8 +68,8 @@ export async function registerAction(_, formData) {
         lastName,
         email,
         password: hashedPassword,
-        age: age ? parseInt(age) : 0, // Default to 0 if not provided
-        gender: gender || "Unspecified", // Default if not provided
+        birthDate: new Date(birthDate), // Store as DateTime
+        gender,
       },
     });
 
