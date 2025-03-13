@@ -68,7 +68,7 @@ export default function PageDetails({ isOpen, onClose, emotionData }) {
     },
   };
 
-  const emotionType = emotionData?.emotionName?.toLowerCase();
+  const emotionType = emotionData?.emotionName?.toLowerCase() || "";
   const style = emotionStyles[emotionType] || emotionStyles.neutral;
 
   const formatDate = dateString => {
