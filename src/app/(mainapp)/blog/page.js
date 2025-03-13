@@ -8,7 +8,8 @@ import getMoodColor from "@/utils/getMoodColor";
 export default async function BlogPage({ searchParams }) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("sessionId")?.value;
-  const selectedMood = searchParams.mood || "";
+  const awaitedParams = await searchParams;
+  const selectedMood = awaitedParams.mood || "";
   // Update posts selection logic to handle "all" mood
   const posts =
     selectedMood === "all" || !selectedMood ? getAllPosts() : getPostsByMood(selectedMood);
