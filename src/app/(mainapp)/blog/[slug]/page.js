@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { MarkDownRenderer } from "../components/markdown-renderer";
+import getMoodColor from "@/utils/getMoodColor";
 
 // Utility constants and functions
 const BLOG_CONTENT_PATH = path.join(process.cwd(), "src/app/(mainapp)/blog/content");
@@ -106,7 +107,11 @@ export default async function BlogPage({ params }) {
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {frontmatter.mood && (
-              <span className="px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+              <span
+                className={`px-3 py-1 text-xs rounded-full ${getMoodColor(frontmatter.mood).bg} ${
+                  getMoodColor(frontmatter.mood).text
+                }`}
+              >
                 {frontmatter.mood}
               </span>
             )}

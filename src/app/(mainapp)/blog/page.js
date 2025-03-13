@@ -3,14 +3,16 @@ import Link from "next/link";
 import BlogFilter from "./components/BlogFilter";
 import { getMostFrequentMood } from "@/utils/getMostFrequentMood";
 import { cookies } from "next/headers";
+import getMoodColor from "@/utils/getMoodColor";
 
 export default async function BlogPage({ searchParams }) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("sessionId")?.value;
-  const awaitedParams = await searchParams;
-  const selectedMood = awaitedParams.mood || "";
-  const posts = selectedMood ? getPostsByMood(selectedMood) : getAllPosts();
-  const moods = getAllMoods();
+  const selectedMood = searchParams.mood || "";
+  // Update posts selection logic to handle "all" mood
+  const posts =
+    selectedMood === "all" || !selectedMood ? getAllPosts() : getPostsByMood(selectedMood);
+  const moods = ["all", ...getAllMoods()]; // Add "all" to the moods list
   const defaultMood = await getMostFrequentMood(sessionId);
   // debug duluu
   console.log("debug from here");
@@ -96,26 +98,4 @@ function formatDate(dateString) {
     month: "long",
     day: "numeric",
   });
-}
-
-function getMoodColor(mood) {
-  const moodLower = mood.toLowerCase();
-
-  const colors = {
-    happy: { bg: "bg-mood-happy", text: "text-white" },
-    sad: { bg: "bg-mood-sad", text: "text-white" },
-    calm: { bg: "bg-mood-calm", text: "text-white" },
-    angry: { bg: "bg-mood-angry", text: "text-white" },
-    anxious: { bg: "bg-mood-anxious", text: "text-white" },
-    neutral: { bg: "bg-mood-neutral", text: "text-gray-700" },
-    stressed: { bg: "bg-mood-stressed", text: "text-white" },
-    excited: { bg: "bg-mood-excited", text: "text-gray-700" },
-    tired: { bg: "bg-mood-tired", text: "text-blue-800" },
-    confused: { bg: "bg-mood-confused", text: "text-white" },
-    grateful: { bg: "bg-mood-grateful", text: "text-cyan-800" },
-    loved: { bg: "bg-mood-loved", text: "text-white" },
-    default: { bg: "bg-gray-100", text: "text-gray-700" },
-  };
-
-  return colors[moodLower] || colors.default;
 }
