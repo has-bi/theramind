@@ -1,23 +1,26 @@
+// /api/emotion/route.js
 import { prisma } from "@/utils/prisma";
 import { cookies } from "next/headers";
 
-export async function POST(request) {
+export async function GET(request) {
   try {
-    // Await cookies before using them
+    const { emotionId, label, imagePath, value } = await request.json();
+
     const cookieStore = await cookies();
     const sessionId = cookieStore.get("sessionId")?.value;
+
     if (!sessionId) {
-      return new Response(JSON.stringify({ error: "No active session found" }), {
+      return new Response(JSON.stringify({ error: "No active session" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Find session and include user
     const session = await prisma.session.findUnique({
       where: { id: sessionId },
       include: { user: true },
     });
+
     if (!session) {
       return new Response(JSON.stringify({ error: "Invalid session" }), {
         status: 401,
@@ -25,22 +28,34 @@ export async function POST(request) {
       });
     }
 
-    const { emotionId } = await request.json();
+    const userId = session.user.id;
 
-    // Create a MoodEntry for the authenticated user
+    // Check if an emotion with this ID exists
+    let emotion = await prisma.emotion.findUnique({
+      where: { id: emotionId },
+    });
+
+    // If emotion doesn't exist, create it
+    if (!emotion) {
+      emotion = await prisma.emotion.create({
+        data: {
+          id: emotionId,
+          name: label,
+          imagePath: imagePath,
+          value: value,
+        },
+      });
+    }
+
+    // Create mood entry
     const moodEntry = await prisma.moodEntry.create({
       data: {
-        userId: session.user.id,
-        emotionId: BigInt(emotionId),
+        userId,
+        emotionId,
       },
     });
 
-    // Use a replacer to handle BigInt serialization
-    const jsonResponse = JSON.stringify({ moodEntry }, (key, value) =>
-      typeof value === "bigint" ? value.toString() : value
-    );
-
-    return new Response(jsonResponse, {
+    return new Response(JSON.stringify({ success: true, moodEntry }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

@@ -1,7 +1,6 @@
-// app/chatbot/ChatbotClient.js (Client Component)
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 
 // Conversation storage utility functions
@@ -26,19 +25,63 @@ function getMessagesFromStorage() {
   return [];
 }
 
+function clearMessagesFromStorage() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
 export default function ChatbotClient({ initialEmotionContext }) {
-  // Initialize emotion context state with the value passed from the server.
-  const [emotionContext] = useState(initialEmotionContext);
-
-  // Load initial messages from localStorage
-  const [messages, setMessages] = useState(() => {
-    // This function only runs once during initial render
-    return getMessagesFromStorage();
-  });
-
+  // Menggunakan state untuk client hydration tracking
+  const [isClient, setIsClient] = useState(false);
+  const [emotionContext, setEmotionContext] = useState(initialEmotionContext);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [recapSummary, setRecapSummary] = useState("");
+
+  // Gunakan useEffect untuk sinkronisasi client-side
+  useEffect(() => {
+    // Tandai bahwa kita sekarang di client side
+    setIsClient(true);
+
+    // PERUBAHAN: Prioritaskan localStorage karena itu adalah pilihan user terbaru
+    const storedEmotion = localStorage.getItem("emotion_context");
+
+    // Log untuk debugging
+    console.log("Emotion context priority:", {
+      localStorage: storedEmotion,
+      initialFromServer: initialEmotionContext,
+    });
+
+    if (storedEmotion) {
+      // Gunakan nilai dari localStorage (pilihan user terbaru)
+      setEmotionContext(storedEmotion);
+      console.log("Using emotion from localStorage:", storedEmotion);
+    } else if (initialEmotionContext) {
+      // Jika tidak ada di localStorage, gunakan nilai dari server
+      setEmotionContext(initialEmotionContext);
+      // Simpan juga ke localStorage
+      localStorage.setItem("emotion_context", initialEmotionContext);
+      console.log("Using emotion from server:", initialEmotionContext);
+    }
+
+    // Cek apakah recap baru saja selesai
+    const recapCompleted = localStorage.getItem("recap_completed") === "true";
+
+    if (recapCompleted) {
+      // Jika recap baru saja selesai, bersihkan chat
+      clearMessagesFromStorage();
+      // Hapus flag recap_completed
+      localStorage.removeItem("recap_completed");
+      console.log("Chat cleaned after recap completion");
+    } else {
+      // Jika tidak, coba dapatkan chat history
+      const storedMessages = getMessagesFromStorage();
+      if (storedMessages.length > 0) {
+        setMessages(storedMessages);
+      }
+    }
+  }, [initialEmotionContext]);
 
   // Function to update messages and save to storage
   const updateMessages = newMessages => {
@@ -84,11 +127,13 @@ export default function ChatbotClient({ initialEmotionContext }) {
 
   const handleRecap = async () => {
     if (messages.length < 2) {
-      setRecapSummary("Not enough conversation to generate a meaningful recap yet.");
+      alert("Not enough conversation to generate a meaningful recap yet.");
       return;
     }
 
     try {
+      setIsLoading(true);
+      // Call your existing API endpoint that generates the recap
       const res = await fetch("/api/recap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,23 +143,30 @@ export default function ChatbotClient({ initialEmotionContext }) {
           emotionContext,
         }),
       });
+
       const data = await res.json();
       if (res.ok) {
-        setRecapSummary(data.summary);
+        // Simpan data untuk halaman recap
+        localStorage.setItem("current_recap", data.summary);
+        localStorage.setItem("emotion_context", emotionContext);
+
+        console.log("Saved to localStorage before redirect:", {
+          recapLength: data.summary.length,
+          emotion: emotionContext,
+        });
+
+        // Navigate to the recap display page
+        window.location.href = `/recap`;
       } else {
         console.log("Recap error:", data.error);
-        setRecapSummary("Unable to generate recap. Please try again later.");
+        alert("Unable to generate recap. Please try again later.");
       }
     } catch (error) {
       console.log("Error calling recap API:", error);
-      setRecapSummary("Error generating recap. Please try again.");
+      alert("Error generating recap. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const clearConversation = () => {
-    setMessages([]);
-    setRecapSummary("");
-    localStorage.removeItem(STORAGE_KEY);
   };
 
   const handleKeyDown = e => {
@@ -124,46 +176,34 @@ export default function ChatbotClient({ initialEmotionContext }) {
     }
   };
 
+  // Render welcome message jika masih di server atau belum ada pesan
+  const showWelcomeMessage = !isClient || messages.length === 0;
+
   return (
     <div className="mobile-container w-full max-w-md flex flex-col h-screen bg-white">
       {/* Header */}
       <header className="px-4 py-3 bg-white sticky top-0 z-10 flex justify-between items-center">
         <div>
           <h1 className="text-lg font-semibold text-gray-800">Mindly Chatbot</h1>
-          {emotionContext && (
-            <p className="text-sm text-gray-600">Today Emotion: {emotionContext}</p>
+          {/* Hanya tampilkan emotionContext saat di client */}
+          {isClient && emotionContext && (
+            <p className="text-sm text-gray-600">Today&apos;s Emotion: {emotionContext}</p>
           )}
         </div>
         <div className="flex space-x-2">
           <button
             onClick={handleRecap}
             className="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700"
-            disabled={messages.length < 2 || isLoading}
+            disabled={!isClient || messages.length < 2 || isLoading}
           >
             Recap
           </button>
-          {messages.length > 0 && (
-            <button
-              onClick={clearConversation}
-              className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300"
-            >
-              Clear
-            </button>
-          )}
         </div>
       </header>
 
-      {/* Recap Summary Display */}
-      {recapSummary && (
-        <div className="bg-gray-100 p-4 text-gray-800 text-sm">
-          <h2 className="font-semibold mb-2">Recap Summary</h2>
-          <p>{recapSummary}</p>
-        </div>
-      )}
-
       {/* Messages Container */}
       <main className="flex-1 overflow-y-auto px-4 py-2 flex flex-col">
-        {messages.length === 0 ? (
+        {showWelcomeMessage ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center p-6">
               <p className="text-gray-500 mb-4">Welcome to your personal chat</p>

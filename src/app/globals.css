@@ -12,6 +12,23 @@
   --font-sans: var(--font-plus-jakarta);
 }
 
+/* Emotion color variables - Extract exactly from the mood images */
+:root {
+  /* Primary Emotion Colors */
+  --color-happy: #ffe8d1;
+  --color-sad: #34d2e0;
+  --color-calm: #c0f9b1;
+  --color-angry: #ff7a59;
+  --color-anxious: #ba9eeb;
+  --color-neutral: #d9d9d9;
+  --color-stressed: #ff9d25;
+  --color-excited: #3edbbe;
+  --color-tired: #bdcfff;
+  --color-confused: #c19eff;
+  --color-loved: #ff88ae;
+  --color-grateful: #fdea77;
+}
+
 html,
 body {
   @apply flex justify-center bg-gray-50 min-h-screen;
@@ -27,12 +44,182 @@ body {
   position: relative;
 }
 
-@media (min-width: 480px) {
+/* Media query for fixed width container */
+@media (min-width: 376px) {
   .mobile-container {
-    width: 100%;
-    max-width: 480px;
+    width: 375px; /* Fixed width exactly 375px */
+    max-width: 375px;
     height: 100vh;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05); /* Subtle shadow for separation */
   }
+}
+
+/* Emotion Specific Classes */
+/* Background classes */
+.bg-mood-happy {
+  background-color: var(--color-happy);
+}
+.bg-mood-sad {
+  background-color: var(--color-sad);
+}
+.bg-mood-calm {
+  background-color: var(--color-calm);
+}
+.bg-mood-angry {
+  background-color: var(--color-angry);
+}
+.bg-mood-anxious {
+  background-color: var(--color-anxious);
+}
+.bg-mood-neutral {
+  background-color: var(--color-neutral);
+}
+.bg-mood-stressed {
+  background-color: var(--color-stressed);
+}
+.bg-mood-excited {
+  background-color: var(--color-excited);
+}
+.bg-mood-tired {
+  background-color: var(--color-tired);
+}
+.bg-mood-confused {
+  background-color: var(--color-confused);
+}
+.bg-mood-loved {
+  background-color: var(--color-loved);
+}
+.bg-mood-grateful {
+  background-color: var(--color-grateful);
+}
+
+/* Light background variants (for card backgrounds, etc) */
+.bg-mood-happy-light {
+  background-color: color-mix(in srgb, var(--color-happy) 40%, white);
+}
+.bg-mood-sad-light {
+  background-color: color-mix(in srgb, var(--color-sad) 40%, white);
+}
+.bg-mood-calm-light {
+  background-color: color-mix(in srgb, var(--color-calm) 40%, white);
+}
+.bg-mood-angry-light {
+  background-color: color-mix(in srgb, var(--color-angry) 40%, white);
+}
+.bg-mood-anxious-light {
+  background-color: color-mix(in srgb, var(--color-anxious) 40%, white);
+}
+.bg-mood-neutral-light {
+  background-color: color-mix(in srgb, var(--color-neutral) 40%, white);
+}
+.bg-mood-stressed-light {
+  background-color: color-mix(in srgb, var(--color-stressed) 40%, white);
+}
+.bg-mood-excited-light {
+  background-color: color-mix(in srgb, var(--color-excited) 40%, white);
+}
+.bg-mood-tired-light {
+  background-color: color-mix(in srgb, var(--color-tired) 40%, white);
+}
+.bg-mood-confused-light {
+  background-color: color-mix(in srgb, var(--color-confused) 40%, white);
+}
+.bg-mood-loved-light {
+  background-color: color-mix(in srgb, var(--color-loved) 40%, white);
+}
+.bg-mood-grateful-light {
+  background-color: color-mix(in srgb, var(--color-grateful) 40%, white);
+}
+
+/* Text color variants */
+.text-mood-happy {
+  color: var(--color-happy);
+}
+.text-mood-sad {
+  color: var(--color-sad);
+}
+.text-mood-calm {
+  color: var(--color-calm);
+}
+.text-mood-angry {
+  color: var(--color-angry);
+}
+.text-mood-anxious {
+  color: var(--color-anxious);
+}
+.text-mood-neutral {
+  color: var(--color-neutral);
+}
+.text-mood-stressed {
+  color: var(--color-stressed);
+}
+.text-mood-excited {
+  color: var(--color-excited);
+}
+.text-mood-tired {
+  color: var(--color-tired);
+}
+.text-mood-confused {
+  color: var(--color-confused);
+}
+.text-mood-loved {
+  color: var(--color-loved);
+}
+.text-mood-grateful {
+  color: var(--color-grateful);
+}
+
+/* Border color variants */
+.border-mood-happy {
+  border-color: var(--color-happy);
+}
+.border-mood-sad {
+  border-color: var(--color-sad);
+}
+.border-mood-calm {
+  border-color: var(--color-calm);
+}
+.border-mood-angry {
+  border-color: var(--color-angry);
+}
+.border-mood-anxious {
+  border-color: var(--color-anxious);
+}
+.border-mood-neutral {
+  border-color: var(--color-neutral);
+}
+.border-mood-stressed {
+  border-color: var(--color-stressed);
+}
+.border-mood-excited {
+  border-color: var(--color-excited);
+}
+.border-mood-tired {
+  border-color: var(--color-tired);
+}
+.border-mood-confused {
+  border-color: var(--color-confused);
+}
+.border-mood-loved {
+  border-color: var(--color-loved);
+}
+.border-mood-grateful {
+  border-color: var(--color-grateful);
+}
+
+/* Utility class for mood cards */
+.mood-card {
+  @apply rounded-2xl transition-all duration-200 shadow-sm border border-gray-100;
+}
+
+/* Active mood card */
+.mood-card-active {
+  @apply shadow-md transform scale-105 border-indigo-500;
+}
+
+/* Additional utility for page content */
+.page-container {
+  @apply px-4 py-4 pb-20; /* Standard padding, extra bottom padding for footer */
 }
 
 /* Button and Input Components */
@@ -82,7 +269,6 @@ body {
   }
 
   /* Input Component */
-
   .input-field {
     @apply w-full py-3 px-4 rounded-xl border border-gray-200 bg-gray-50 transition-all text-gray-800 placeholder-gray-400;
   }
@@ -111,5 +297,53 @@ body {
   /* Error Message */
   .error-text {
     @apply mt-1 text-sm text-red-500;
+  }
+
+  /* iOS Safe Area Support */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+
+  /* Utility class untuk memberi ruang pada konten agar tidak tertutup footer */
+  .pb-footer {
+    padding-bottom: 4rem;
+  }
+
+  /* Fixed Width Container untuk komponen */
+  .fixed-width-container {
+    width: 100%;
+    max-width: 375px;
+    margin: 0 auto;
+  }
+}
+
+/* Helper function to get mood color dynamically */
+@function getMoodColor(mood) {
+  @if mood == "happy" {
+    @return var(--color-happy);
+  } @else if mood == "sad" {
+    @return var(--color-sad);
+  } @else if mood == "calm" {
+    @return var(--color-calm);
+  } @else if mood == "angry" {
+    @return var(--color-angry);
+  } @else if mood == "anxious" {
+    @return var(--color-anxious);
+  } @else if mood == "neutral" {
+    @return var(--color-neutral);
+  } @else if mood == "stressed" {
+    @return var(--color-stressed);
+  } @else if mood == "excited" {
+    @return var(--color-excited);
+  } @else if mood == "tired" {
+    @return var(--color-tired);
+  } @else if mood == "confused" {
+    @return var(--color-confused);
+  } @else if mood == "loved" {
+    @return var(--color-loved);
+  } @else if mood == "grateful" {
+    @return var(--color-grateful);
+  } @else {
+    @return var(--color-neutral);
   }
 }

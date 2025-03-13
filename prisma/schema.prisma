@@ -19,6 +19,8 @@ model User {
   password    String?
   firstName   String
   lastName    String
+  age         Int
+  gender      String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   googleId    String?     @unique
@@ -78,7 +80,7 @@ model JournalAI {
 
 model Blog {
   id          String    @id @default(uuid()) @map("id")
-  title       String
+  title       String?
   description String    @db.Text
   createdAt   DateTime  @default(now())
   emotionId   BigInt    @map("emotionId") // Changed to BigInt to match Emotion.id

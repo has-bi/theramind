@@ -22,10 +22,9 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={`${plusJakartaSans.variable} antialiased`}>
-        <div className="mobile-container w-full max-w-[480px] bg-white min-h-screen">
-          {children}
-        </div>
+        {/* Mobile container dengan fixed width 375px */}
+        <div className="mobile-container">{children}</div>
       </body>
     </html>
-  )
+  );
 }

@@ -1,49 +1,19 @@
-"use client";
+import { cookies } from "next/headers";
+import { getMoodData } from "@/app/api/calendar/getMoodData";
+import CalendarClient from "./components/CalendarClient";
 
-import React from "react";
-import { useState, useEffect } from "react";
-import Calendar from "./components/calendar";
+export default async function CalendarMoodView() {
+  // Get session ID from cookies
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId")?.value;
 
-export default function CalendarMoodView() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [moodData, setMoodData] = useState({});
+  console.log("Calendar page loaded with session ID:", sessionId);
 
-  const fetchMoodData = async () => {
-    const dummyData = {
-      "2025-02-23": "happy",
-      "2025-02-24": "sad",
-      "2025-02-25": "calm",
-      "2025-02-26": "angry",
-      "2025-02-27": "anxious",
-      "2025-02-28": "stressed",
-      "2025-03-01": "neutral",
-      "2025-03-02": "excited",
-      "2025-03-03": "tired",
-      "2025-03-04": "confused",
-      "2025-03-05": "grateful",
-      "2025-03-06": "loved",
-    };
+  // Fetch mood data on the server
+  const moodData = await getMoodData(sessionId);
 
-    setMoodData(dummyData);
-  };
+  console.log("Mood data fetched and ready to pass to client component");
 
-  useEffect(() => {
-    fetchMoodData();
-  }, []);
-
-  const handleDateClick = dateString => {
-    console.log("Selected date:", dateString);
-  };
-
-  const handleChangeMonth = direction => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + direction);
-    setCurrentDate(newDate);
-  };
-
-  return (
-    <div>
-      <Calendar currentDate={currentDate} moodData={moodData} onChangeMonth={handleChangeMonth} />
-    </div>
-  );
+  // Pass the data to the client component
+  return <CalendarClient initialMoodData={moodData} />;
 }
