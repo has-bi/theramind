@@ -1,10 +1,20 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
-export default function BlogFilter({ moods, selectedMood }) {
+export default function BlogFilter({ moods, selectedMood, defaultMood }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Only set default mood if no mood is selected and defaultMood exists
+    if (!selectedMood && defaultMood && moods.includes(defaultMood)) {
+      const params = new URLSearchParams(searchParams);
+      params.set("mood", defaultMood);
+      router.push(`/blog?${params.toString()}`);
+    }
+  }, [defaultMood, moods, router, searchParams, selectedMood]);
 
   const handleMoodChange = e => {
     const mood = e.target.value;

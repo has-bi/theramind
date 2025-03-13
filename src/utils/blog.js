@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 
+const slugToFileMap = new Map();
 const contentDirectory = path.join(process.cwd(), "src/app/(mainapp)/blog/content");
 
 export function getAllPosts() {
@@ -52,28 +53,29 @@ export function getAllMoods() {
   }
 }
 
+// Add this function to build the map
+function buildSlugFileMap() {
+  if (slugToFileMap.size > 0) return; // Only build once
+
+  const files = fs.readdirSync(contentDirectory);
+  files.forEach(filename => {
+    const fullPath = path.join(contentDirectory, filename);
+    const fileContents = fs.readFileSync(fullPath, "utf8");
+    const { data } = matter(fileContents);
+    if (data.slug) {
+      slugToFileMap.set(data.slug, filename);
+    }
+  });
+}
+
+// Modify getPostBySlug to use the map
 export function getPostBySlug(slug) {
   try {
-    // We need to find the file that matches the slug in frontmatter
-    const filenames = fs.readdirSync(contentDirectory);
-    let targetFile = null;
+    buildSlugFileMap();
+    const filename = slugToFileMap.get(slug);
+    if (!filename) return null;
 
-    for (const filename of filenames) {
-      const fullPath = path.join(contentDirectory, filename);
-      const fileContents = fs.readFileSync(fullPath, "utf8");
-      const { data } = matter(fileContents);
-      
-      if (data.slug === slug) {
-        targetFile = filename;
-        break;
-      }
-    }
-
-    if (!targetFile) {
-      return null;
-    }
-
-    const fullPath = path.join(contentDirectory, targetFile);
+    const fullPath = path.join(contentDirectory, filename);
     const fileContents = fs.readFileSync(fullPath, "utf8");
     const { data, content } = matter(fileContents);
 

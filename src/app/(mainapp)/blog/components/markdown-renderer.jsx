@@ -1,36 +1,3 @@
-// "use client";
-
-// import React from "react";
-// import ReactMarkdown from "react-markdown";
-
-// export const MarkDownRenderer = ({ content }) => {
-//   return (
-//     <ReactMarkdown
-//       components={{
-//         ul: props => {
-//           return <ul {...props} className="space-y-0" />;
-//         },
-//         li: props => {
-//           return <li {...props} className="list-disc list-item list-inside" />;
-//         },
-//         blockquote: props => {
-//           return (
-//             <p
-//               {...props}
-//               className="bg-amber-100 text-amber-950 py-2 px-4 rounded-lg border border-amber-500"
-//             />
-//           );
-//         },
-//         p: props => {
-//           return <p {...props} className="p-0 m-0" />;
-//         },
-//       }}
-//     >
-//       {content}
-//     </ReactMarkdown>
-//   );
-// };
-
 "use client";
 
 import React from "react";

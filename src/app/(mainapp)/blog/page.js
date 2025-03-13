@@ -1,16 +1,28 @@
 import { getAllPosts, getAllMoods, getPostsByMood } from "@/utils/blog";
 import Link from "next/link";
 import BlogFilter from "./components/BlogFilter";
+import { getMostFrequentMood } from "@/utils/getMostFrequentMood";
+import { cookies } from "next/headers";
 
 export default async function BlogPage({ searchParams }) {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId")?.value;
   const awaitedParams = await searchParams;
   const selectedMood = awaitedParams.mood || "";
   const posts = selectedMood ? getPostsByMood(selectedMood) : getAllPosts();
   const moods = getAllMoods();
-  console.log("posts", posts);
+  const defaultMood = await getMostFrequentMood(sessionId);
+  // debug duluu
+  console.log("debug from here");
+  console.log("SessionID:", sessionId);
+  console.log("Default Mood:", defaultMood);
+  console.log("Available Moods:", moods);
+  console.log("Selected Mood:", selectedMood);
+
+  const processedDefaultMood = defaultMood ? defaultMood.toLowerCase() : null;
 
   return (
-    <div className=" min-h-screen px-4">
+    <div className="min-h-screen px-4">
       <header className="px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
         <div className="flex items-center">
           <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-sm">
@@ -38,7 +50,7 @@ export default async function BlogPage({ searchParams }) {
         </div>
       </header>
 
-      <BlogFilter moods={moods} selectedMood={selectedMood} />
+      <BlogFilter moods={moods} selectedMood={selectedMood} defaultMood={processedDefaultMood} />
 
       <div className="space-y-4">
         {posts.length === 0 ? (
@@ -55,11 +67,9 @@ export default async function BlogPage({ searchParams }) {
                 <div className="p-6">
                   {post.mood && (
                     <div
-                      className="text-xs font-semibold uppercase tracking-wider mb-2 inline-block px-2 py-1 rounded-full"
-                      style={{
-                        backgroundColor: getMoodColor(post.mood).bg,
-                        color: getMoodColor(post.mood).text,
-                      }}
+                      className={`text-xs font-semibold uppercase tracking-wider mb-2 inline-block px-2 py-1 rounded-full ${
+                        getMoodColor(post.mood).bg
+                      } ${getMoodColor(post.mood).text}`}
                     >
                       {post.mood}
                     </div>
@@ -80,7 +90,6 @@ export default async function BlogPage({ searchParams }) {
   );
 }
 
-// Helper functions
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString("en-US", {
     year: "numeric",
@@ -93,19 +102,19 @@ function getMoodColor(mood) {
   const moodLower = mood.toLowerCase();
 
   const colors = {
-    happy: { bg: "#4ADE80", text: "#FFFFFF" }, // Green
-    sad: { bg: "#93C5FD", text: "#FFFFFF" }, // Light blue
-    calm: { bg: "#3B82F6", text: "#FFFFFF" }, // Blue
-    angry: { bg: "#F87171", text: "#FFFFFF" }, // Red
-    anxious: { bg: "#C084FC", text: "#FFFFFF" }, // Purple
-    neutral: { bg: "#D1D5DB", text: "#374151" }, // Gray
-    stressed: { bg: "#FDBA74", text: "#FFFFFF" }, // Orange
-    excited: { bg: "#FDE047", text: "#374151" }, // Yellow
-    tired: { bg: "#BFDBFE", text: "#1E40AF" }, // Lighter blue
-    confused: { bg: "#FDA4AF", text: "#FFFFFF" }, // Pink
-    grateful: { bg: "#67E8F9", text: "#0E7490" }, // Teal
-    loved: { bg: "#FDA4AF", text: "#FFFFFF" }, // Pink
-    default: { bg: "#F3F4F6", text: "#374151" }, // Light gray
+    happy: { bg: "bg-mood-happy", text: "text-white" },
+    sad: { bg: "bg-mood-sad", text: "text-white" },
+    calm: { bg: "bg-mood-calm", text: "text-white" },
+    angry: { bg: "bg-mood-angry", text: "text-white" },
+    anxious: { bg: "bg-mood-anxious", text: "text-white" },
+    neutral: { bg: "bg-mood-neutral", text: "text-gray-700" },
+    stressed: { bg: "bg-mood-stressed", text: "text-white" },
+    excited: { bg: "bg-mood-excited", text: "text-gray-700" },
+    tired: { bg: "bg-mood-tired", text: "text-blue-800" },
+    confused: { bg: "bg-mood-confused", text: "text-white" },
+    grateful: { bg: "bg-mood-grateful", text: "text-cyan-800" },
+    loved: { bg: "bg-mood-loved", text: "text-white" },
+    default: { bg: "bg-gray-100", text: "text-gray-700" },
   };
 
   return colors[moodLower] || colors.default;
