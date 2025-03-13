@@ -81,7 +81,7 @@ export const MarkDownRenderer = ({ content }) => {
           return (
             <div
               {...props}
-              className="bg-amber-100 text-amber-950 py-2 px-4 my-2 rounded-lg border border-amber-500"
+              className="bg-blue-50 font-semibold italic text-gray-700 py-3 px-5 my-3 rounded-lg border-l-4 border-blue-500"
             />
           );
         },

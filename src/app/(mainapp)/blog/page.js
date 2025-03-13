@@ -40,7 +40,7 @@ export default async function BlogPage({ searchParams }) {
 
       <BlogFilter moods={moods} selectedMood={selectedMood} />
 
-      <div>
+      <div className="space-y-4">
         {posts.length === 0 ? (
           <div>
             <p className="text-gray-600">No blog posts found for this mood.</p>
@@ -49,7 +49,7 @@ export default async function BlogPage({ searchParams }) {
           posts.map(post => (
             <div
               key={post.slug}
-              className="rounded-md overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+              className="rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
             >
               <Link href={`/blog/${post.slug}`}>
                 <div className="p-6">
