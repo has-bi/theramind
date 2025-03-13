@@ -86,7 +86,7 @@ export async function loginAction(_, formData) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       expires: expirationDate,
-      path: "/", // Add path for better cookie security
+      path: "/",
     });
 
     redirect("/dashboard");

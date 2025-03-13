@@ -1,15 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql" // Or your preferred database
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -19,14 +13,15 @@ model User {
   password    String?
   firstName   String
   lastName    String
-  birthDate   DateTime
   gender      String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   googleId    String?     @unique
-  sessions    Session[]
-  moodEntries MoodEntry[]
+  birthDate   DateTime
+  age         Int?
   journalAIs  JournalAI[]
+  moodEntries MoodEntry[]
+  sessions    Session[]
 
   @@map("User")
 }
@@ -43,14 +38,14 @@ model Session {
 }
 
 model MoodEntry {
-  id         String     @id @default(uuid()) @map("id")
-  userId     String     @map("userId")
-  emotionId  BigInt     @map("emotionId")
-  createdAt  DateTime   @default(now())
-  journalId  BigInt?    @map("journalId") // Changed to BigInt to match JournalAI.id
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  emotion    Emotion    @relation(fields: [emotionId], references: [id])
-  journalAI  JournalAI? @relation(fields: [journalId], references: [id])
+  id        String     @id @default(uuid()) @map("id")
+  userId    String     @map("userId")
+  emotionId BigInt     @map("emotionId")
+  createdAt DateTime   @default(now())
+  journalId BigInt?    @map("journalId")
+  emotion   Emotion    @relation(fields: [emotionId], references: [id])
+  journalAI JournalAI? @relation(fields: [journalId], references: [id])
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("MoodEntry")
 }
@@ -58,33 +53,33 @@ model MoodEntry {
 model Emotion {
   id          BigInt      @id @default(autoincrement()) @map("id")
   name        String      @unique
-  moodEntries MoodEntry[]
   blogs       Blog[]
-  journalAIs  JournalAI[] // Added the missing relation field
+  journalAIs  JournalAI[]
+  moodEntries MoodEntry[]
 
   @@map("Emotion")
 }
 
 model JournalAI {
-  id         BigInt      @id @default(autoincrement()) @map("id")
-  createdAt  DateTime    @default(now())
-  recap      String      @db.Text
-  emotionId  BigInt      @map("emotionId")
-  userId     String      @map("user_id") // Changed to String to match User.id
+  id          BigInt      @id @default(autoincrement()) @map("id")
+  createdAt   DateTime    @default(now())
+  recap       String
+  emotionId   BigInt      @map("emotionId")
+  userId      String      @map("user_id")
+  emotion     Emotion     @relation(fields: [emotionId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   moodEntries MoodEntry[]
-  emotion    Emotion     @relation(fields: [emotionId], references: [id])
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("JournalAI")
 }
 
 model Blog {
-  id          String    @id @default(uuid()) @map("id")
+  id          String   @id @default(uuid()) @map("id")
   title       String?
-  description String    @db.Text
-  createdAt   DateTime  @default(now())
-  emotionId   BigInt    @map("emotionId") // Changed to BigInt to match Emotion.id
-  emotion     Emotion   @relation(fields: [emotionId], references: [id])
+  description String
+  createdAt   DateTime @default(now())
+  emotionId   BigInt   @map("emotionId")
+  emotion     Emotion  @relation(fields: [emotionId], references: [id])
 
   @@map("Blog")
 }

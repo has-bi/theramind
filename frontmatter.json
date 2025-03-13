@@ -40,6 +40,16 @@
           "title": "tags",
           "name": "tags",
           "type": "tags"
+        },
+        {
+          "title": "fmContentType",
+          "name": "fmContentType",
+          "type": "string"
+        },
+        {
+          "title": "preview",
+          "name": "preview",
+          "type": "string"
         }
       ]
     }

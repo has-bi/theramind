@@ -7,8 +7,8 @@ export default function Page() {
   const [state, formAction, pending] = useActionState(loginAction, null);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen items-center justify-center p-4">
+      <div className="">
         <div className="text-center">
           <h1 className="text-2xl font-semibold">Login</h1>
           <p className="text-sm text-gray-600 mt-2">Login with your account</p>

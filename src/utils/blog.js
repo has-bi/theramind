@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 
+const slugToFileMap = new Map();
 const contentDirectory = path.join(process.cwd(), "src/app/(mainapp)/blog/content");
 
 export function getAllPosts() {
@@ -11,14 +12,13 @@ export function getAllPosts() {
     return filenames
       .filter(filename => filename.endsWith(".mdx"))
       .map(filename => {
-        const slug = filename.replace(/\.mdx$/, "");
         const fullPath = path.join(contentDirectory, filename);
         const fileContents = fs.readFileSync(fullPath, "utf8");
         const { data } = matter(fileContents);
 
         return {
-          slug,
-          title: data.title || slug,
+          slug: data.slug || filename.replace(/\.mdx$/, ""), // Use frontmatter slug or fallback to filename
+          title: data.title || data.slug,
           excerpt: data.excerpt || "",
           date: data.date || new Date().toISOString(),
           author: data.author || "Theramind",
@@ -53,21 +53,36 @@ export function getAllMoods() {
   }
 }
 
+// Add this function to build the map
+function buildSlugFileMap() {
+  if (slugToFileMap.size > 0) return; // Only build once
+
+  const files = fs.readdirSync(contentDirectory);
+  files.forEach(filename => {
+    const fullPath = path.join(contentDirectory, filename);
+    const fileContents = fs.readFileSync(fullPath, "utf8");
+    const { data } = matter(fileContents);
+    if (data.slug) {
+      slugToFileMap.set(data.slug, filename);
+    }
+  });
+}
+
+// Modify getPostBySlug to use the map
 export function getPostBySlug(slug) {
   try {
-    const fullPath = path.join(contentDirectory, `${slug}.mdx`);
+    buildSlugFileMap();
+    const filename = slugToFileMap.get(slug);
+    if (!filename) return null;
 
-    if (!fs.existsSync(fullPath)) {
-      return null;
-    }
-
+    const fullPath = path.join(contentDirectory, filename);
     const fileContents = fs.readFileSync(fullPath, "utf8");
     const { data, content } = matter(fileContents);
 
     return {
-      slug,
+      slug: data.slug,
       content,
-      title: data.title || slug,
+      title: data.title || data.slug,
       excerpt: data.excerpt || "",
       date: data.date || new Date().toISOString(),
       author: data.author || "Anonymous",
