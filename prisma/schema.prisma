@@ -19,7 +19,6 @@ model User {
   updatedAt   DateTime    @updatedAt
   googleId    String?     @unique
   birthDate   DateTime
-  age         Int?
   journalAIs  JournalAI[]
   moodEntries MoodEntry[]
   sessions    Session[]
