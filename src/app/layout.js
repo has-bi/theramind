@@ -9,7 +9,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export const metadata = {
   title: "TheraMind",
-  description: "your mindfulnes app",
+  description: "Your mindfulness app",
 };
 
 export default function RootLayout({ children }) {
@@ -22,8 +22,11 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={`${plusJakartaSans.variable} antialiased`} suppressHydrationWarning>
-        {/* Mobile container dengan fixed width 375px */}
-        <div className="mobile-container">{children}</div>
+        {/* Mobile container with fixed width */}
+        <div className="mobile-container max-w-md mx-auto">
+          <header className="flex justify-center pt-6 pb-4"></header>
+          {children}
+        </div>
       </body>
     </html>
   );
