@@ -1,6 +1,6 @@
 "use client";
 
-import { logout } from "@/app/actions/auth"; // Pastikan path benar
+import { logout } from "@/app/(auth)/auth/auth"; // Pastikan path benar
 
 export default function LogoutButton() {
   return (
