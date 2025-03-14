@@ -8,10 +8,6 @@ import { formatUTC7Date, formatUTC7Time } from "@/utils/dateTime";
 export default function RecapClient() {
   const router = useRouter();
 
-  const now = new Date();
-  const formattedDate = formatUTC7Date(now);
-  const formattedTime = formatUTC7Time(now);
-
   // State management
   const [state, setState] = useState({
     recap: "",
@@ -113,6 +109,9 @@ export default function RecapClient() {
   // Client-side initialization
   useEffect(() => {
     try {
+      const now = new Date();
+      const formattedDate = formatUTC7Date(now);
+      const formattedTime = formatUTC7Time(now);
       const storedRecap = localStorage.getItem("current_recap") || "";
       const storedEmotion = localStorage.getItem("emotion_context") || "";
       const storedEmotionId = localStorage.getItem("emotion_id") || "";
