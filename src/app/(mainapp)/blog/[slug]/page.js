@@ -93,7 +93,10 @@ export default async function BlogPage({ params }) {
       <article className="mobile-container w-full max-w-[480px] bg-white min-h-screen px-4">
         <header className="px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-sm">
+            <a
+              href="/blog"
+              className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-sm hover:bg-indigo-700 transition-colors"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -104,16 +107,12 @@ export default async function BlogPage({ params }) {
                 strokeLinejoin="round"
                 className="w-6 h-6 text-white"
               >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
+                <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
-            </div>
+            </a>
             <div>
-              <h1 className="text-xl font-bold text-gray-800">TheraBlog</h1>
-              <p className="text-xs text-gray-500">Your daily companion for mental wellness</p>
+              <h1 className="text-xl font-bold text-gray-800">Read More</h1>
+              <p className="text-xs text-gray-500">Back to all articles</p>
             </div>
           </div>
         </header>
