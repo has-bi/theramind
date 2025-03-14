@@ -179,7 +179,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Logout Button */}
-            <div className="mt-6 w-full max-w-sm">
+            <div className="flex justify-end">
               <LogoutButton />
             </div>
           </>

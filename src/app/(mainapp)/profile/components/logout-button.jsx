@@ -1,10 +1,15 @@
 "use client";
 
-import { logout } from "@/app/(auth)/auth/auth"; // Pastikan path benar
+import { logout } from "@/app/(auth)/auth/auth";
+import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
 
 export default function LogoutButton() {
   return (
-    <button onClick={() => logout()} className="px-4 py-2 bg-red-500 text-white rounded">
+    <button
+      onClick={() => logout()}
+      className="bg-red-500 text-white py-1.5 px-3 rounded-lg flex items-center text-sm hover:bg-red-600 transition"
+    >
+      <ArrowRightStartOnRectangleIcon className="w-4 h-4 mr-2" />
       Logout
     </button>
   );
