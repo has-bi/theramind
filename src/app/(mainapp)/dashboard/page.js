@@ -130,7 +130,9 @@ export default async function DashboardPage() {
           const entryDate = new Date(date);
           // We need to keep this in UTC as the date strings from getMoodData are already adjusted
           if (entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear) {
-            moodCounts[mood] = (moodCounts[mood] || 0) + 1;
+            // Fix: Use emotionName property from mood object
+            const emotionName = mood.emotionName;
+            moodCounts[emotionName] = (moodCounts[emotionName] || 0) + 1;
           }
         });
 

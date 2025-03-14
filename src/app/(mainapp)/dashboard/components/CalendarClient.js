@@ -6,43 +6,30 @@ import PageDetails from "./pagedetails";
 import { formatUTC7Date } from "@/utils/dateTime";
 
 export default function CalendarClient({ moodData }) {
+  const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMood, setSelectedMood] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const handleDateClick = dateString => {
-    // Only log in development mode if needed
+    // Get mood data for the selected date
+    const mood = moodData[dateString];
+
+    // Log in development mode if needed
     if (process.env.NODE_ENV === "development") {
       console.log("Selected date:", dateString);
-      const mood = moodData[dateString] || "No mood recorded";
-      // console.log(initialMoodData);
-      console.log(`Mood for ${dateString}: ${mood}`);
+      console.log(`Mood for ${dateString}:`, mood || "No mood recorded");
+    }
 
-      const formatDate = dateString => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
-      };
-
-      if (mood) {
-        setSelectedMood({
-          type: mood.emotionName,
-          createdAt: formatDate(mood.createdAt),
-          emotionName: mood.emotionName, // Format createdAt
-          recap: mood.recap,
-        });
-        setIsModalOpen(true);
-      } else {
-        setIsModalOpen(false);
+    if (mood) {
+      setSelectedDate(dateString);
+      setSelectedMood(mood);
+      setIsModalOpen(true);
+    } else {
+      if (process.env.NODE_ENV === "development") {
         console.log("No mood data for this date:", dateString);
       }
     }
-
-    // You could expand this to show a modal with mood details for the selected date
   };
 
   const handleChangeMonth = direction => {
@@ -60,11 +47,12 @@ export default function CalendarClient({ moodData }) {
         onDateClick={handleDateClick}
       />
 
-      {selectedMood && (
+      {isModalOpen && selectedMood && (
         <PageDetails
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          emotionData={selectedMood}
+          date={selectedDate}
+          moodData={selectedMood}
         />
       )}
     </div>
