@@ -176,6 +176,11 @@ export default function ProfilePage() {
                 initialData={profileData}
               />
             </div>
+
+            {/* Logout Button */}
+            <div className="mt-6 w-full max-w-sm">
+              <LogoutButton />
+            </div>
           </>
         )}
       </div>
