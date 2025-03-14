@@ -39,6 +39,7 @@ export async function getMoodData(sessionId) {
       },
       include: {
         emotion: true,
+        journalAI: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -61,7 +62,11 @@ export async function getMoodData(sessionId) {
 
         // Only keep the first mood entry for each day (most recent due to ordering)
         if (!formattedData[dateStr]) {
-          formattedData[dateStr] = entry.emotion.name;
+          formattedData[dateStr] = {
+            createdAt: entry.createdAt,
+            emotionName: entry.emotion.name,
+            recap: entry.journalAI?.recap || "No recap available",
+          };
 
           if (isDebugging) {
             console.log(`Mood for ${dateStr}: ${entry.emotion.name}`);

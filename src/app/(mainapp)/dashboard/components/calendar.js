@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
+import { useState } from "react";
+import PageDetails from "./pagedetails";
 import { convertToUTC7 } from "@/utils/dateTime";
 
 export default function Calendar({ currentDate, moodData, onChangeMonth, onDateClick }) {
-  // Use the mood-specific classes from global.css instead of custom colors
   const MOOD_COLORS = {
     happy: "bg-mood-happy",
     sad: "bg-mood-sad",
@@ -167,13 +168,16 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
         {generateCalendarDays().map((dayInfo, index) => {
           const isToday = isCurrentDate(dayInfo.dateString);
           const hasMood = !!dayInfo.mood;
-          const moodClass = hasMood ? MOOD_COLORS[dayInfo.mood.toLowerCase()] : "";
+          const moodClass = hasMood ? MOOD_COLORS[dayInfo.mood.emotionName.toLowerCase()] : "";
 
           return (
             <div
               key={`day-${index}`}
-              className="relative h-8"
-              onClick={() => (onDateClick ? onDateClick(dayInfo.dateString) : null)}
+              className={`relative h-8
+                ${hasMood ? "cursor-pointer" : "cursor-default"}`}
+              {...(hasMood && {
+                onClick: () => (onDateClick ? onDateClick(dayInfo.dateString) : null),
+              })}
             >
               {dayInfo && (
                 <>
@@ -190,7 +194,7 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
                           : "text-gray-700"
                       }
                       ${isToday ? "ring-2 ring-indigo-500" : ""}
-                      ${hasMood || isToday ? "cursor-pointer" : ""}
+                      ${hasMood || isToday ? "cursor-pointer" : "cursor-default"}
                       transition-all text-sm
                     `}
                   >
