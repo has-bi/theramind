@@ -70,7 +70,7 @@ export default function FooterMenu() {
   ];
 
   return (
-    <div className="bg-white border-t border-gray-200 pb-safe w-full">
+    <div className="bg-white border-t border-gray-200 pb-safe w-full rounded-t-3xl">
       <div className="flex items-center justify-around">
         {menuItems.map(item => {
           const isActive = pathname === item.path || pathname.startsWith(`${item.path}/`);
