@@ -3,25 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
+import { hasSubmittedMood } from "@/utils/hasSubmittedMood";
+import { getUTC7StartOfDay, getUTC7EndOfDay } from "@/utils/dateTime";
 
 export async function createMoodAction(_, formData) {
   try {
-    console.log("Server action called with data:", {
-      emotionId: formData.get("emotionId"),
-      label: formData.get("label"),
-      value: formData.get("value"),
-    });
-
     const emotionId = Number(formData.get("emotionId"));
     const label = formData.get("label");
     const imagePath = formData.get("imagePath");
     const value = formData.get("value");
 
     if (!emotionId || !label || !value) {
-      console.error("Missing required emotion data");
       return {
         error: "Missing required emotion data",
-        debug: { emotionId, label, value },
       };
     }
 
@@ -30,7 +24,6 @@ export async function createMoodAction(_, formData) {
     const sessionId = cookieStore.get("sessionId")?.value;
 
     if (!sessionId) {
-      console.error("No active session found");
       return { error: "No active session" };
     }
 
@@ -41,12 +34,17 @@ export async function createMoodAction(_, formData) {
     });
 
     if (!session) {
-      console.error("Invalid session:", sessionId);
       return { error: "Invalid session" };
     }
 
     const userId = session.user.id;
-    console.log("User found:", userId);
+
+    // Check if user has already submitted mood today
+    const { hasSubmitted } = await hasSubmittedMood(userId);
+
+    if (hasSubmitted) {
+      return { error: "You have already recorded your mood for today", alreadySubmitted: true };
+    }
 
     try {
       // Check if an emotion with this ID exists
@@ -56,7 +54,6 @@ export async function createMoodAction(_, formData) {
 
       // If emotion doesn't exist, create it
       if (!emotion) {
-        console.log("Creating new emotion:", { emotionId, label });
         emotion = await prisma.emotion.create({
           data: {
             id: emotionId,
@@ -68,7 +65,6 @@ export async function createMoodAction(_, formData) {
       }
 
       // Create mood entry
-      console.log("Creating mood entry for user:", userId);
       await prisma.moodEntry.create({
         data: {
           userId,
@@ -76,23 +72,20 @@ export async function createMoodAction(_, formData) {
         },
       });
 
-      // Revalidate the path to refresh data
+      // Revalidate the paths to refresh data
       revalidatePath("/");
+      revalidatePath("/mood");
+      revalidatePath("/chat");
 
-      console.log("Mood entry created successfully, returning success");
       return { success: true, redirect: "/chat" };
     } catch (dbError) {
-      console.error("Database operation failed:", dbError);
       return {
         error: "Database operation failed: " + dbError.message,
-        code: dbError.code,
       };
     }
   } catch (error) {
-    console.error("Unexpected error in createMoodAction:", error);
     return {
       error: "An unexpected error occurred: " + error.message,
-      stack: error.stack,
     };
   }
 }

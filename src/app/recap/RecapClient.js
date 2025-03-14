@@ -3,9 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { formatUTC7Date, formatUTC7Time } from "@/utils/dateTime";
 
 export default function RecapClient() {
   const router = useRouter();
+
+  const now = new Date();
+  const formattedDate = formatUTC7Date(now);
+  const formattedTime = formatUTC7Time(now);
 
   // State management
   const [state, setState] = useState({
@@ -112,11 +117,14 @@ export default function RecapClient() {
       const storedEmotion = localStorage.getItem("emotion_context") || "";
       const storedEmotionId = localStorage.getItem("emotion_id") || "";
 
-      console.log("Loading data from storage:", {
-        recapLength: storedRecap ? storedRecap.length : 0,
-        emotion: storedEmotion,
-        emotionId: storedEmotionId,
-      });
+      // Log in development only
+      if (process.env.NODE_ENV === "development") {
+        console.log("Loading data from storage:", {
+          recapLength: storedRecap ? storedRecap.length : 0,
+          emotion: storedEmotion,
+          emotionId: storedEmotionId,
+        });
+      }
 
       updateState({
         recap: storedRecap,
@@ -128,7 +136,6 @@ export default function RecapClient() {
 
       // Redirect to chat if no recap data
       if (!storedRecap) {
-        console.log("Missing recap data, redirecting to /chat");
         setTimeout(() => {
           router.push("/chat");
         }, 1000);
@@ -169,10 +176,10 @@ export default function RecapClient() {
         // Clean up localStorage
         localStorage.removeItem("current_recap");
         localStorage.removeItem("mindly_chat_history");
-        console.log("Cleared chat history after successful journal save");
 
         // Set flag for completed recap
         localStorage.setItem("recap_completed", "true");
+        localStorage.setItem("has_journal_entry", "true");
 
         updateState({ showThanks: true });
 
@@ -195,6 +202,13 @@ export default function RecapClient() {
           if (countdownTimer) clearTimeout(countdownTimer);
         };
       } else {
+        // Check for already exists error
+        if (response.status === 403 && data.error.includes("already exists")) {
+          localStorage.setItem("has_journal_entry", "true");
+          router.push("/");
+          return;
+        }
+
         alert(data.error || "Failed to save journal. Please try again.");
       }
     } catch (error) {
@@ -205,21 +219,17 @@ export default function RecapClient() {
     }
   };
 
-  // Get current emotion colors or default to neutral
+  // Get current emotion colors or default to neutral for icons only
   const currentEmotionColors = emotionColors[state.emotionContext] || emotionColors["Neutral"];
 
   // Thank you page
   if (state.showThanks) {
     return (
       <div className="mobile-container bg-gray-50 min-h-screen flex flex-col items-center justify-center p-6">
-        <div
-          className={`w-full max-w-md ${currentEmotionColors.bg} rounded-2xl shadow-md p-6 border ${currentEmotionColors.border}`}
-        >
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-6 border border-gray-100">
           <div className="text-center">
             <div className="flex justify-center mb-4">
-              <div
-                className={`w-16 h-16 rounded-full ${currentEmotionColors.iconBg} flex items-center justify-center`}
-              >
+              <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -239,9 +249,9 @@ export default function RecapClient() {
             <p className="text-gray-700 mb-6">
               Your journal has been saved. We hope reflecting on your emotions helps you grow.
             </p>
-            <div className={`w-full bg-white bg-opacity-50 rounded-full h-2 mb-2`}>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
               <div
-                className={`h-2 rounded-full ${currentEmotionColors.iconBg} transition-all duration-1000 ease-linear`}
+                className="h-2 rounded-full bg-indigo-600 transition-all duration-1000 ease-linear"
                 style={{ width: `${(state.countdown / 5) * 100}%` }}
               ></div>
             </div>
@@ -285,14 +295,10 @@ export default function RecapClient() {
 
       <div className="page-container pb-safe">
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
-          {/* Journal content with emotion-based styling */}
-          <div
-            className={`${currentEmotionColors.bg} rounded-2xl p-5 shadow-sm border ${currentEmotionColors.border} mb-6 flex-1`}
-          >
+          {/* Journal content with white styling */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 mb-6 flex-1">
             <div className="flex items-center mb-4">
-              <div
-                className={`w-10 h-10 rounded-full ${currentEmotionColors.iconBg} flex items-center justify-center mr-3`}
-              >
+              <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center mr-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -316,13 +322,13 @@ export default function RecapClient() {
             {/* Skeleton loading or content */}
             {!state.isClientLoaded || state.isLoading ? (
               <div className="py-3 space-y-3">
-                <div className="h-4 bg-white bg-opacity-50 rounded animate-pulse mb-2 w-3/4"></div>
-                <div className="h-4 bg-white bg-opacity-50 rounded animate-pulse mb-2"></div>
-                <div className="h-4 bg-white bg-opacity-50 rounded animate-pulse mb-2 w-5/6"></div>
-                <div className="h-4 bg-white bg-opacity-50 rounded animate-pulse w-1/2"></div>
+                <div className="h-4 bg-gray-100 rounded animate-pulse mb-2 w-3/4"></div>
+                <div className="h-4 bg-gray-100 rounded animate-pulse mb-2"></div>
+                <div className="h-4 bg-gray-100 rounded animate-pulse mb-2 w-5/6"></div>
+                <div className="h-4 bg-gray-100 rounded animate-pulse w-1/2"></div>
               </div>
             ) : (
-              <div className="p-4 bg-white bg-opacity-60 backdrop-blur-sm rounded-xl">
+              <div className="p-4 bg-gray-50 rounded-xl">
                 <p className="text-gray-700 whitespace-pre-line">{state.recap}</p>
               </div>
             )}
@@ -356,7 +362,7 @@ export default function RecapClient() {
             </div>
           </div>
 
-          {/* Submit button */}
+          {/* Submit button with indigo primary color */}
           <button
             type="submit"
             disabled={
@@ -374,7 +380,7 @@ export default function RecapClient() {
                 !state.recap ||
                 !state.emotionContext
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : `${currentEmotionColors.iconBg} text-white hover:opacity-90`
+                  : "bg-indigo-600 text-white hover:bg-indigo-700"
               }`}
           >
             {state.isSubmitting ? (

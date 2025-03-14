@@ -1,55 +1,49 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
 import ChatbotClient from "./ChatbotClient";
+import { hasSubmittedMood } from "@/utils/hasSubmittedMood";
+import { redirect } from "next/navigation";
+import AlreadySubmittedMood from "../components/AlreadySubmittedMood";
 
 export default async function ChatbotPage() {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("sessionId")?.value;
-  let emotionContext = "";
 
-  if (sessionId) {
-    try {
-      const session = await prisma.session.findUnique({
-        where: { id: sessionId },
-        include: { user: true },
-      });
-
-      if (session) {
-        const userId = session.user.id;
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
-
-        // Log database query
-        console.log("Searching for mood entry for user:", userId);
-
-        const moodEntry = await prisma.moodEntry.findFirst({
-          where: {
-            userId,
-            createdAt: { gte: startOfDay, lte: endOfDay },
-          },
-          include: { emotion: true },
-          orderBy: { createdAt: "desc" },
-        });
-
-        if (moodEntry) {
-          emotionContext = moodEntry.emotion.name;
-          console.log("Found emotion from database:", emotionContext);
-        } else {
-          console.log("No mood entry found for today");
-        }
-      } else {
-        console.log("Invalid session:", sessionId);
-      }
-    } catch (error) {
-      console.error("Error loading emotion from database:", error);
-    }
-  } else {
-    console.log("No session cookie found");
+  if (!sessionId) {
+    // Redirect to login if user isn't authenticated
+    redirect("/login");
   }
 
-  // IMPORTANT: Pass initialEmotionContext even if empty
-  // The client will prioritize localStorage value
-  return <ChatbotClient initialEmotionContext={emotionContext} />;
+  const session = await prisma.session.findUnique({
+    where: { id: sessionId },
+    include: { user: true },
+  });
+
+  if (!session) {
+    // Redirect to login if session is invalid
+    redirect("/login");
+  }
+
+  const userId = session.user.id;
+
+  // Check if user has submitted a mood today
+  const { hasSubmitted, data: moodData } = await hasSubmittedMood(userId);
+
+  // If user hasn't submitted a mood yet, redirect to mood page
+  if (!hasSubmitted) {
+    redirect("/mood");
+  }
+
+  // If user has already submitted a journal for today's mood, show "already completed" UI
+  if (hasSubmitted && moodData?.journal) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <h1 className="text-2xl font-bold text-center mb-6">Chat Complete</h1>
+        <AlreadySubmittedMood moodData={moodData} />
+      </div>
+    );
+  }
+
+  // Return the chat client with the user's emotion context
+  return <ChatbotClient initialEmotionContext={moodData?.emotion?.name || ""} />;
 }

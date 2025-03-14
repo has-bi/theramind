@@ -25,7 +25,7 @@ export default async function BlogPage({ searchParams }) {
   const processedDefaultMood = defaultMood ? defaultMood.toLowerCase() : null;
 
   return (
-    <div className="min-h-screen px-4">
+    <div className="mobile-container bg-white min-h-screen relative overflow-hidden">
       <header className="px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
         <div className="flex items-center">
           <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-sm">
@@ -53,41 +53,42 @@ export default async function BlogPage({ searchParams }) {
         </div>
       </header>
 
-      <BlogFilter moods={moods} selectedMood={selectedMood} defaultMood={processedDefaultMood} />
-
-      <div className="space-y-4">
-        {posts.length === 0 ? (
-          <div>
-            <p className="text-gray-600">No blog posts found for this mood.</p>
-          </div>
-        ) : (
-          posts.map(post => (
-            <div
-              key={post.slug}
-              className="rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
-            >
-              <Link href={`/blog/${post.slug}`}>
-                <div className="p-6">
-                  {post.mood && (
-                    <div
-                      className={`text-xs font-semibold uppercase tracking-wider mb-2 inline-block px-2 py-1 rounded-full ${
-                        getMoodColor(post.mood).bg
-                      } ${getMoodColor(post.mood).text}`}
-                    >
-                      {post.mood}
-                    </div>
-                  )}
-                  <h2 className="text-lg font-bold mb-2 hover:text-indigo-600">{post.title}</h2>
-                  <p className=" text-sm text-gray-600 mb-4">{post.excerpt}</p>
-                  <div className="flex items-center justify-between text-xs">
-                    <span>{post.author}</span>
-                    <span>{formatDate(post.date)}</span>
-                  </div>
-                </div>
-              </Link>
+      <div className="page-container">
+        <BlogFilter moods={moods} selectedMood={selectedMood} defaultMood={processedDefaultMood} />
+        <div className="space-y-4">
+          {posts.length === 0 ? (
+            <div>
+              <p className="text-gray-600">No blog posts found for this mood.</p>
             </div>
-          ))
-        )}
+          ) : (
+            posts.map(post => (
+              <div
+                key={post.slug}
+                className="rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
+              >
+                <Link href={`/blog/${post.slug}`}>
+                  <div className="p-6">
+                    {post.mood && (
+                      <div
+                        className={`text-xs font-semibold uppercase tracking-wider mb-2 inline-block px-2 py-1 rounded-full ${
+                          getMoodColor(post.mood).bg
+                        } ${getMoodColor(post.mood).text}`}
+                      >
+                        {post.mood}
+                      </div>
+                    )}
+                    <h2 className="text-lg font-bold mb-2 hover:text-indigo-600">{post.title}</h2>
+                    <p className=" text-sm text-gray-600 mb-4">{post.excerpt}</p>
+                    <div className="flex items-center justify-between text-xs">
+                      <span>{post.author}</span>
+                      <span>{formatDate(post.date)}</span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

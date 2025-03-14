@@ -3,6 +3,7 @@
 import React from "react";
 import { useState } from "react";
 import PageDetails from "./pagedetails";
+import { convertToUTC7 } from "@/utils/dateTime";
 
 export default function Calendar({ currentDate, moodData, onChangeMonth, onDateClick }) {
   const MOOD_COLORS = {
@@ -20,12 +21,19 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
     loved: "bg-mood-loved",
   };
 
+  // Convert current date from input to UTC+7 for display
+  const utc7CurrentDate = convertToUTC7(currentDate);
+
   const isCurrentDate = dateString => {
+    // Get today's date in UTC+7
     const today = new Date();
-    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
+    const utc7Today = convertToUTC7(today);
+
+    const todayString = `${utc7Today.getFullYear()}-${String(utc7Today.getMonth() + 1).padStart(
       2,
       "0"
-    )}-${String(today.getDate()).padStart(2, "0")}`;
+    )}-${String(utc7Today.getDate()).padStart(2, "0")}`;
+
     return dateString === todayString;
   };
 
@@ -34,14 +42,19 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
   };
 
   const generateCalendarDays = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+    // Use the UTC+7 adjusted date for calendar generation
+    const year = utc7CurrentDate.getFullYear();
+    const month = utc7CurrentDate.getMonth();
     const days = [];
 
     // Previous month days
     const firstDay = new Date(year, month, 1);
-    const firstDayOfWeek = firstDay.getDay();
-    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    const utc7FirstDay = convertToUTC7(firstDay);
+    const firstDayOfWeek = utc7FirstDay.getDay();
+
+    const lastDayPrevMonth = new Date(year, month, 0);
+    const utc7LastDayPrevMonth = convertToUTC7(lastDayPrevMonth);
+    const prevMonthLastDay = utc7LastDayPrevMonth.getDate();
 
     for (let i = firstDayOfWeek - 1; i >= 0; i--) {
       const day = prevMonthLastDay - i;
@@ -59,8 +72,14 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
 
     // Current month days
     const lastDay = new Date(year, month + 1, 0);
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-      const dateString = formatDateString(year, month + 1, day);
+    const utc7LastDay = convertToUTC7(lastDay);
+
+    for (let day = 1; day <= utc7LastDay.getDate(); day++) {
+      const dateString = formatDateString(
+        utc7CurrentDate.getFullYear(),
+        utc7CurrentDate.getMonth() + 1,
+        day
+      );
 
       days.push({
         day,
@@ -71,8 +90,9 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
     }
 
     // Next month days
-    const lastDayOfWeek = lastDay.getDay();
+    const lastDayOfWeek = utc7LastDay.getDay();
     const daysToAdd = 6 - lastDayOfWeek;
+
     for (let i = 1; i <= daysToAdd; i++) {
       const nextMonth = month === 11 ? 1 : month + 2;
       const nextYear = month === 11 ? year + 1 : year;
@@ -113,9 +133,10 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
           </svg>
         </button>
         <div className="text-base font-semibold text-gray-800">
-          {currentDate.toLocaleString("default", {
+          {utc7CurrentDate.toLocaleString("default", {
             month: "long",
             year: "numeric",
+            timeZone: "Asia/Bangkok", // Use Bangkok timezone for UTC+7
           })}
         </div>
         <button

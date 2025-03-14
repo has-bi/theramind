@@ -1,6 +1,7 @@
 // /app/api/journal-save/route.js
 import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
+import { hasSubmittedMood } from "@/utils/hasSubmittedMood";
 
 export async function POST(request) {
   try {
@@ -36,25 +37,33 @@ export async function POST(request) {
       });
     }
 
-    // Parse request body
-    const { recap, emotionContext } = await request.json();
     const userId = session.user.id;
 
-    // Validate required fields
-    if (!recap || !emotionContext) {
-      return new Response(JSON.stringify({ error: "Missing required data" }), {
-        status: 400,
+    // Check if user has already submitted a mood today
+    const { hasSubmitted, data: moodData } = await hasSubmittedMood(userId);
+
+    if (!hasSubmitted) {
+      return new Response(JSON.stringify({ error: "Please set your mood for today first" }), {
+        status: 403,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Look up the emotion by name
-    const emotionRecord = await prisma.emotion.findFirst({
-      where: { name: emotionContext },
-    });
+    // Check if a journal already exists for today's mood
+    if (moodData.journal) {
+      return new Response(JSON.stringify({ error: "Journal entry already exists for today" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
-    if (!emotionRecord) {
-      return new Response(JSON.stringify({ error: "Emotion not found" }), {
+    // Parse request body
+    const { recap } = await request.json();
+    const emotionContext = moodData.emotion.name;
+
+    // Validate required fields
+    if (!recap) {
+      return new Response(JSON.stringify({ error: "Missing required data" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
@@ -65,36 +74,15 @@ export async function POST(request) {
       data: {
         recap,
         userId,
-        emotionId: BigInt(emotionRecord.id),
+        emotionId: moodData.emotion.id,
       },
     });
 
-    // Find and update today's mood entry if it exists
-    const today = new Date();
-    const startOfDay = new Date(today);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(today);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const todaysMoodEntry = await prisma.moodEntry.findFirst({
-      where: {
-        userId,
-        createdAt: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+    // Update the existing mood entry to link to the journal
+    await prisma.moodEntry.update({
+      where: { id: moodData.id },
+      data: { journalId: journalRecord.id },
     });
-
-    if (todaysMoodEntry) {
-      await prisma.moodEntry.update({
-        where: { id: todaysMoodEntry.id },
-        data: { journalId: journalRecord.id },
-      });
-    }
 
     // Return success response
     const jsonResponse = JSON.stringify({

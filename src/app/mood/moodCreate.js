@@ -114,7 +114,6 @@ export const EmojiForm = () => {
 
     try {
       setPending(true);
-      console.log("Submitting form with emotion:", selectedEmotion);
 
       // Create FormData
       const formData = new FormData();
@@ -127,26 +126,22 @@ export const EmojiForm = () => {
       if (typeof window !== "undefined") {
         localStorage.setItem("emotion_context", selectedEmotion.value);
         localStorage.setItem("emotion_id", selectedEmotion.id);
-        console.log("Saved emotion to localStorage:", selectedEmotion.value);
       }
 
       // Call server action
-      console.log("Calling server action...");
       const result = await createMoodAction(null, formData);
-      console.log("Server action result:", result);
 
       if (result?.success) {
-        console.log("Success! Redirecting to /chat");
         router.push("/chat");
+      } else if (result?.alreadySubmitted) {
+        // Handle the case where user has already submitted a mood today
+        router.push("/mood"); // The page will now show "already submitted" UI
       } else if (result?.error) {
-        console.error("Server returned error:", result.error);
         setFormError(result.error || "Failed to save your emotion");
       } else {
-        console.log("No specific result, redirecting to /chat");
         router.push("/chat");
       }
     } catch (error) {
-      console.error("Client-side error in form submission:", error);
       setFormError(error.message || "An unexpected error occurred");
     } finally {
       setPending(false);
