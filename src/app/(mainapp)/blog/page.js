@@ -6,23 +6,27 @@ import { cookies } from "next/headers";
 import getMoodColor from "@/utils/getMoodColor";
 
 export default async function BlogPage({ searchParams }) {
+  const { mood } = await searchParams;
+  const selectedMood = mood || "";
+
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("sessionId")?.value;
-  const awaitedParams = await searchParams;
-  const selectedMood = awaitedParams.mood || "";
+
+  // Get all moods and make sure "all" is the first option
+  const moods = ["all", ...getAllMoods()];
+
+  // Get user's most frequent mood (top mood)
+  const defaultMood = await getMostFrequentMood(sessionId);
+
+  // For debugging coy
+  console.log("Default/Top Mood:", defaultMood);
+
+  // Process default mood - ensure it's lowercase for consistency
+  const processedDefaultMood = defaultMood ? defaultMood.toLowerCase() : null;
+
   // Update posts selection logic to handle "all" mood
   const posts =
     selectedMood === "all" || !selectedMood ? getAllPosts() : getPostsByMood(selectedMood);
-  const moods = ["all", ...getAllMoods()]; // Add "all" to the moods list
-  const defaultMood = await getMostFrequentMood(sessionId);
-  // debug duluu
-  console.log("debug from here");
-  console.log("SessionID:", sessionId);
-  console.log("Default Mood:", defaultMood);
-  console.log("Available Moods:", moods);
-  console.log("Selected Mood:", selectedMood);
-
-  const processedDefaultMood = defaultMood ? defaultMood.toLowerCase() : null;
 
   return (
     <div className="mobile-container bg-white min-h-screen relative overflow-hidden">

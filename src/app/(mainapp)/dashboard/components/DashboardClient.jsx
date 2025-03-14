@@ -106,7 +106,7 @@ export default function DashboardClient({
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-800">Home</h1>
-            <p className="text-xs text-gray-500">{formattedDate}</p>
+            <p className="text-xs text-gray-500">Welcome to Theramind!</p>
           </div>
         </div>
       </header>
@@ -128,9 +128,6 @@ export default function DashboardClient({
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-base font-semibold text-gray-700">Your Mood Calendar</h2>
-            <span className="text-xs text-gray-500 font-medium">
-              {new Date().toLocaleDateString("en-US", { month: "long", timeZone: "Asia/Bangkok" })}
-            </span>
           </div>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             {calendarView}
