@@ -46,9 +46,6 @@ export default function Page() {
           <div>
             <div className="flex justify-between mb-1">
               <label className="block text-sm font-medium text-gray-700">Password</label>
-              <a href="/forgot-password" className="text-xs text-indigo-600 hover:text-indigo-700">
-                Forgot password?
-              </a>
             </div>
             <div className="relative">
               <input
