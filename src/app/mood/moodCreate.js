@@ -135,7 +135,7 @@ export const EmojiForm = () => {
         router.push("/chat");
       } else if (result?.alreadySubmitted) {
         // Handle the case where user has already submitted a mood today
-        router.push("/mood"); // The page will now show "already submitted" UI
+        router.push("/mood");
       } else if (result?.error) {
         setFormError(result.error || "Failed to save your emotion");
       } else {

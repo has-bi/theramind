@@ -66,27 +66,11 @@ export default function AlreadySubmittedMood({ moodData }) {
 
       <div className="flex flex-col gap-3">
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/dashboard")}
           className="w-full py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
         >
           Go to Dashboard
         </button>
-
-        {moodData?.journal ? (
-          <button
-            onClick={() => router.push("/journal-history")}
-            className="w-full py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-          >
-            View Journal History
-          </button>
-        ) : (
-          <button
-            onClick={() => router.push("/chat")}
-            className="w-full py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-          >
-            Continue to Chat
-          </button>
-        )}
       </div>
     </div>
   );
