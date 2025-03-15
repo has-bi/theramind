@@ -5,6 +5,7 @@ import { updateProfile, getProfile } from "./action";
 import ProfileForm from "./components/ProfileForm";
 import Link from "next/link";
 import Avatar from "boring-avatars";
+import LogoutButton from "./components/logout-button";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -175,6 +176,11 @@ export default function ProfilePage() {
                 onSubmit={handleSubmit}
                 initialData={profileData}
               />
+            </div>
+
+            {/* Logout Button */}
+            <div className="flex justify-end">
+              <LogoutButton />
             </div>
           </>
         )}
