@@ -198,7 +198,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
 
         const welcomeMsg = {
           role: "assistant",
-          content: `Hi there! I see you're feeling ${emotionToUse} today. How can I help you with that?`,
+          content: `Hi I'm Mindly! I see you're feeling ${emotionToUse} today. How can I help you with that?`,
         };
         setMessages([welcomeMsg]);
         saveMessagesToStorage([welcomeMsg]);
@@ -317,7 +317,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
   return (
     <div className="mobile-container bg-white min-h-screen flex flex-col">
       {/* Header */}
-      <header className="px-5 py-4 bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10">
+      <header className="px-5 py-4 bg-white border-b border-gray-100 rounded-b-2xl shadow-sm sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div
@@ -431,7 +431,7 @@ export default function ChatbotClient({ initialEmotionContext }) {
       </div>
 
       {/* Input Section as part of the main container */}
-      <div className="bg-white border-t border-gray-100 px-4 py-3">
+      <div className="bg-white border-t border-gray-100 rounded-t-2xl px-4 py-3">
         <form onSubmit={sendMessage} className="flex items-center gap-2">
           <div className="relative flex-grow">
             <input
