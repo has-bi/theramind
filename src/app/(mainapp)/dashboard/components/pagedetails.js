@@ -176,8 +176,8 @@ export default function PageDetails({ isOpen, onClose, date, moodData }) {
               <Image
                 src={getEmotionImagePath(emotionName)}
                 alt={emotionName || "Mood"}
-                width={30}
-                height={30}
+                width={28}
+                height={28}
                 className="object-contain"
               />
             </div>

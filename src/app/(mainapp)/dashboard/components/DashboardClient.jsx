@@ -85,7 +85,7 @@ export default function DashboardClient({
   }
 
   return (
-    <div className="mobile-container bg-gray-50">
+    <div className="mobile-container bg-white">
       {/* Header */}
       <header className="px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
         <div className="flex items-center">
