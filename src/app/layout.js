@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
       <body className={`${plusJakartaSans.variable} antialiased`} suppressHydrationWarning>
         {/* Mobile container with fixed width */}
         <div className="mobile-container max-w-md mx-auto">
-          <header className="flex justify-center pt-6 pb-4"></header>
+          <header className="flex justify-center"></header>
           {children}
         </div>
       </body>

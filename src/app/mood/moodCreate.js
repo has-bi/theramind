@@ -132,14 +132,16 @@ export const EmojiForm = () => {
       const result = await createMoodAction(null, formData);
 
       if (result?.success) {
-        router.push("/chat");
+        // Programmatically navigate based on the redirect property
+        if (result.redirect) {
+          window.location.href = result.redirect;
+        } else {
+          router.push("/chat");
+        }
       } else if (result?.alreadySubmitted) {
-        // Handle the case where user has already submitted a mood today
         router.push("/mood");
       } else if (result?.error) {
-        setFormError(result.error || "Failed to save your emotion");
-      } else {
-        router.push("/chat");
+        setFormError(result.error);
       }
     } catch (error) {
       setFormError(error.message || "An unexpected error occurred");
