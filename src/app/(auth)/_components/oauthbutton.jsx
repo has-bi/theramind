@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState } from "react";
 import { continuewithgoogleAction } from "./action";
 

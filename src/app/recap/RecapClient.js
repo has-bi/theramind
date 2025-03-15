@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { formatUTC7Date, formatUTC7Time } from "@/utils/dateTime";
 
 export default function RecapClient() {
   const router = useRouter();
 
-  // State untuk mengelola semua data dan UI state
+  // State management
   const [state, setState] = useState({
     recap: "",
     emotionContext: "",
+    emotionId: "",
     isSubmitting: false,
     showThanks: false,
     countdown: 5,
@@ -17,32 +20,121 @@ export default function RecapClient() {
     isLoading: true,
   });
 
-  // Helper untuk memudahkan update state
+  // Helper for updating state
   const updateState = newState => {
     setState(prevState => ({ ...prevState, ...newState }));
   };
 
-  // Single useEffect untuk client initialization
+  // Map emotions to their color classes
+  const emotionColors = {
+    Happy: {
+      bg: "bg-mood-happy-light",
+      text: "text-gray-800",
+      border: "border-mood-happy",
+      iconBg: "bg-mood-happy",
+    },
+    Sad: {
+      bg: "bg-mood-sad-light",
+      text: "text-gray-800",
+      border: "border-mood-sad",
+      iconBg: "bg-mood-sad",
+    },
+    Calm: {
+      bg: "bg-mood-calm-light",
+      text: "text-gray-800",
+      border: "border-mood-calm",
+      iconBg: "bg-mood-calm",
+    },
+    Angry: {
+      bg: "bg-mood-angry-light",
+      text: "text-gray-800",
+      border: "border-mood-angry",
+      iconBg: "bg-mood-angry",
+    },
+    Anxious: {
+      bg: "bg-mood-anxious-light",
+      text: "text-gray-800",
+      border: "border-mood-anxious",
+      iconBg: "bg-mood-anxious",
+    },
+    Neutral: {
+      bg: "bg-mood-neutral-light",
+      text: "text-gray-800",
+      border: "border-mood-neutral",
+      iconBg: "bg-mood-neutral",
+    },
+    Stressed: {
+      bg: "bg-mood-stressed-light",
+      text: "text-gray-800",
+      border: "border-mood-stressed",
+      iconBg: "bg-mood-stressed",
+    },
+    Excited: {
+      bg: "bg-mood-excited-light",
+      text: "text-gray-800",
+      border: "border-mood-excited",
+      iconBg: "bg-mood-excited",
+    },
+    Tired: {
+      bg: "bg-mood-tired-light",
+      text: "text-gray-800",
+      border: "border-mood-tired",
+      iconBg: "bg-mood-tired",
+    },
+    Confused: {
+      bg: "bg-mood-confused-light",
+      text: "text-gray-800",
+      border: "border-mood-confused",
+      iconBg: "bg-mood-confused",
+    },
+    Grateful: {
+      bg: "bg-mood-grateful-light",
+      text: "text-gray-800",
+      border: "border-mood-grateful",
+      iconBg: "bg-mood-grateful",
+    },
+    Loved: {
+      bg: "bg-mood-loved-light",
+      text: "text-gray-800",
+      border: "border-mood-loved",
+      iconBg: "bg-mood-loved",
+    },
+  };
+
+  // Get emotion image path
+  const getEmotionImagePath = emotion => {
+    return `/images/emotions/${emotion?.toLowerCase() || "neutral"}.png`;
+  };
+
+  // Client-side initialization
   useEffect(() => {
     try {
+      const now = new Date();
+      const formattedDate = formatUTC7Date(now);
+      const formattedTime = formatUTC7Time(now);
       const storedRecap = localStorage.getItem("current_recap") || "";
       const storedEmotion = localStorage.getItem("emotion_context") || "";
+      const storedEmotionId = localStorage.getItem("emotion_id") || "";
 
-      console.log("Loading data from storage:", {
-        recapLength: storedRecap ? storedRecap.length : 0,
-        emotion: storedEmotion,
-      });
+      // Log in development only
+      if (process.env.NODE_ENV === "development") {
+        console.log("Loading data from storage:", {
+          recapLength: storedRecap ? storedRecap.length : 0,
+          emotion: storedEmotion,
+          emotionId: storedEmotionId,
+        });
+      }
 
       updateState({
         recap: storedRecap,
         emotionContext: storedEmotion,
+        emotionId: storedEmotionId,
         isClientLoaded: true,
         isLoading: false,
       });
 
-      // Jika tidak ada data recap, kembali ke halaman chat
+      // Redirect to chat if no recap data
       if (!storedRecap) {
-        console.log("Missing recap data, redirecting to /chat");
         setTimeout(() => {
           router.push("/chat");
         }, 1000);
@@ -53,7 +145,7 @@ export default function RecapClient() {
     }
   }, [router]);
 
-  // Handler untuk submit form
+  // Submit handler
   const handleSubmit = async e => {
     e.preventDefault();
     const { recap, emotionContext } = state;
@@ -80,21 +172,17 @@ export default function RecapClient() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Hapus data sementara dari localStorage
+        // Clean up localStorage
         localStorage.removeItem("current_recap");
-
-        // PENTING: Bersihkan chat history karena proses sudah selesai
         localStorage.removeItem("mindly_chat_history");
 
-        console.log("Cleared chat history after successful journal save");
-
-        // Tambahkan flag ke localStorage untuk menandai bahwa recap sudah selesai
-        // (ini akan digunakan jika user kembali ke halaman chat)
+        // Set flag for completed recap
         localStorage.setItem("recap_completed", "true");
+        localStorage.setItem("has_journal_entry", "true");
 
         updateState({ showThanks: true });
 
-        // Countdown dengan fungsi rekursif
+        // Start countdown
         let countdownTimer;
         const startCountdown = count => {
           updateState({ countdown: count });
@@ -102,19 +190,24 @@ export default function RecapClient() {
           if (count > 0) {
             countdownTimer = setTimeout(() => startCountdown(count - 1), 1000);
           } else {
-            // PENTING: Redirect ke DASHBOARD setelah countdown selesai
             router.push("/dashboard");
           }
         };
 
-        // Mulai countdown
         startCountdown(5);
 
-        // Cleanup timer jika component unmounts
+        // Cleanup timer
         return () => {
           if (countdownTimer) clearTimeout(countdownTimer);
         };
       } else {
+        // Check for already exists error
+        if (response.status === 403 && data.error.includes("already exists")) {
+          localStorage.setItem("has_journal_entry", "true");
+          router.push("/");
+          return;
+        }
+
         alert(data.error || "Failed to save journal. Please try again.");
       }
     } catch (error) {
@@ -125,72 +218,181 @@ export default function RecapClient() {
     }
   };
 
-  // Tampilkan thank you page jika showThanks true
+  // Get current emotion colors or default to neutral for icons only
+  const currentEmotionColors = emotionColors[state.emotionContext] || emotionColors["Neutral"];
+
+  // Thank you page
   if (state.showThanks) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
-        <div className="max-w-md w-full text-center p-6 bg-indigo-50 rounded-lg">
-          <h2 className="text-2xl font-semibold text-indigo-700 mb-2">Thank You!</h2>
-          <p className="text-gray-700 mb-4">
-            Your journal has been saved. We hope reflecting on your emotions helps you grow.
-          </p>
-          <p className="text-gray-500 text-sm">
-            Redirecting to dashboard in {state.countdown} seconds...
-          </p>
+      <div className="mobile-container bg-gray-50 min-h-screen flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+          <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-8 h-8"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">Thank You!</h2>
+            <p className="text-gray-700 mb-6">
+              Your journal has been saved. We hope reflecting on your emotions helps you grow.
+            </p>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+              <div
+                className="h-2 rounded-full bg-indigo-600 transition-all duration-1000 ease-linear"
+                style={{ width: `${(state.countdown / 5) * 100}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-600">
+              Redirecting to dashboard in {state.countdown} seconds...
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white p-4">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Your Conversation Recap</h1>
-        {state.isClientLoaded && state.emotionContext && (
-          <p className="text-sm text-gray-600">Today&apos;s Emotion: {state.emotionContext}</p>
-        )}
+    <div className="mobile-container bg-gray-50 min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
+        <div className="flex items-center">
+          <div
+            className={`w-10 h-10 rounded-xl ${currentEmotionColors.iconBg} flex items-center justify-center mr-3 shadow-sm`}
+          >
+            {state.emotionContext && state.isClientLoaded && (
+              <Image
+                src={getEmotionImagePath(state.emotionContext)}
+                alt={state.emotionContext}
+                width={24}
+                height={24}
+                className="object-contain"
+              />
+            )}
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-800">Journal Entry</h1>
+            {state.isClientLoaded && state.emotionContext && (
+              <p className="text-xs text-gray-500">
+                Based on your {state.emotionContext.toLowerCase()} mood
+              </p>
+            )}
+          </div>
+        </div>
       </header>
 
-      <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-        <div className="flex-1 bg-gray-50 p-6 rounded-lg shadow-sm mb-8">
-          <h2 className="text-lg font-medium text-gray-700 mb-4">Journal Summary</h2>
-
-          {/* Selalu tampilkan skeleton loading pada render server dan saat loading */}
-          {!state.isClientLoaded || state.isLoading ? (
-            <div className="py-4">
-              <div className="h-4 bg-gray-200 rounded animate-pulse mb-2 w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded animate-pulse mb-2 w-5/6"></div>
-              <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+      <div className="page-container pb-safe">
+        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+          {/* Journal content with white styling */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 mb-6 flex-1">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center mr-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <h2 className="text-lg font-medium text-gray-800">Your Conversation Summary</h2>
             </div>
-          ) : (
-            <p className="text-gray-700 whitespace-pre-line">{state.recap}</p>
-          )}
-        </div>
 
-        <button
-          type="submit"
-          disabled={
-            state.isSubmitting ||
-            state.isLoading ||
-            !state.isClientLoaded ||
-            !state.recap ||
-            !state.emotionContext
-          }
-          className={`py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg 
-            ${
+            {/* Skeleton loading or content */}
+            {!state.isClientLoaded || state.isLoading ? (
+              <div className="py-3 space-y-3">
+                <div className="h-4 bg-gray-100 rounded animate-pulse mb-2 w-3/4"></div>
+                <div className="h-4 bg-gray-100 rounded animate-pulse mb-2"></div>
+                <div className="h-4 bg-gray-100 rounded animate-pulse mb-2 w-5/6"></div>
+                <div className="h-4 bg-gray-100 rounded animate-pulse w-1/2"></div>
+              </div>
+            ) : (
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <p className="text-gray-700 whitespace-pre-line">{state.recap}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Info card */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+            <div className="flex items-start">
+              <div className="p-2 rounded-full bg-indigo-50 mr-3 mt-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4 text-indigo-500"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-700">
+                  This summary was created based on your chat conversation. Saving it will help you
+                  track your emotional journey over time.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Submit button with indigo primary color */}
+          <button
+            type="submit"
+            disabled={
               state.isSubmitting ||
               state.isLoading ||
               !state.isClientLoaded ||
               !state.recap ||
               !state.emotionContext
-                ? "opacity-70 cursor-not-allowed"
-                : "hover:bg-indigo-700"
-            }`}
-        >
-          {state.isSubmitting ? "Saving..." : "Save Journal"}
-        </button>
-      </form>
+            }
+            className={`py-3 px-4 font-medium rounded-xl transition-colors shadow-sm
+              ${
+                state.isSubmitting ||
+                state.isLoading ||
+                !state.isClientLoaded ||
+                !state.recap ||
+                !state.emotionContext
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-indigo-600 text-white hover:bg-indigo-700"
+              }`}
+          >
+            {state.isSubmitting ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                <span>Saving...</span>
+              </div>
+            ) : (
+              "Save Journal Entry"
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

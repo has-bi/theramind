@@ -1,34 +1,66 @@
+"use server";
+
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { marked } from "marked";
+import { MarkDownRenderer } from "../components/markdown-renderer";
+import getMoodColor from "@/utils/getMoodColor";
+import Link from "next/link";
+
+// Utility constants and functions
+const BLOG_CONTENT_PATH = path.join(process.cwd(), "src/app/(mainapp)/blog/content");
+
+const findFileBySlug = slug => {
+  const files = fs.readdirSync(BLOG_CONTENT_PATH);
+
+  for (const filename of files) {
+    const filePath = path.join(BLOG_CONTENT_PATH, filename);
+    const fileContents = fs.readFileSync(filePath, "utf-8");
+    const { data } = matter(fileContents);
+
+    if (data.slug === slug) {
+      return {
+        filename,
+        filePath,
+        fileContents,
+      };
+    }
+  }
+  return null;
+};
 
 // Generate static params for all MDX files
-export function generateStaticParams() {
-  const files = fs.readdirSync(path.join(process.cwd(), "src/app/(mainapp)/blog/content"));
+export async function generateStaticParams() {
+  const files = fs.readdirSync(BLOG_CONTENT_PATH);
 
   return files
     .filter(filename => filename.endsWith(".mdx"))
-    .map(filename => ({
-      slug: filename.replace(/\.mdx$/, ""),
-    }));
+    .map(filename => {
+      const filePath = path.join(BLOG_CONTENT_PATH, filename);
+      const fileContents = fs.readFileSync(filePath, "utf-8");
+      const { data } = matter(fileContents);
+      return {
+        slug: data.slug,
+      };
+    });
 }
 
 // Generate metadata from frontmatter
 export async function generateMetadata({ params }) {
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
-
-  console.log({ slug });
-
-  const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", `${slug}.mdx`);
+  const awaitedParams = await params;
+  const slug = awaitedParams.slug;
 
   try {
-    // Read file and parse frontmatter
-    const markdownWithMeta = fs.readFileSync(filePath, "utf-8");
-    const { data } = matter(markdownWithMeta);
+    const fileData = findFileBySlug(slug);
 
+    if (!fileData) {
+      return {
+        title: "Blog Post Not Found",
+        description: "Blog post not found",
+      };
+    }
+
+    const { data } = matter(fileData.fileContents);
     return {
       title: data.title,
       description: data.excerpt,
@@ -43,15 +75,13 @@ export async function generateMetadata({ params }) {
 
 // Main component - using Server Component pattern
 export default async function BlogPage({ params }) {
-  // Properly await params
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
+  const awaitedParams = await params;
+  const slug = awaitedParams.slug;
 
   try {
-    // Read MDX file
-    const filePath = path.join(process.cwd(), "src/app/(mainapp)/blog/content", `${slug}.mdx`);
+    const fileData = findFileBySlug(slug);
 
-    if (!fs.existsSync(filePath)) {
+    if (!fileData) {
       return (
         <div className="max-w-4xl mx-auto px-4 py-8">
           <h1 className="text-2xl font-bold text-red-500">Blog Post Not Found</h1>
@@ -60,20 +90,66 @@ export default async function BlogPage({ params }) {
       );
     }
 
-    // Read and parse MDX
-    const fileContents = fs.readFileSync(filePath, "utf-8");
-    const { data: frontmatter, content } = matter(fileContents);
-    const htmlContent = marked(content);
-
-    console.log(frontmatter);
-    console.log(content);
+    const { data: frontmatter, content } = matter(fileData.fileContents);
 
     return (
-      <article className="mobile-container w-full max-w-[480px] bg-white min-h-screen px-4 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{frontmatter.title}</h1>
-          <div className="flex justify-between text-sm text-gray-500 mt-12 mb-2">
-            {frontmatter.author && <span>By {frontmatter.author}</span>}
+      <article className="mobile-container w-full max-w-[480px] bg-white min-h-screen px-4">
+        <header className="mx-[-16px] px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
+          <div className="flex items-center">
+            <Link
+              href="/blog?mood=all"
+              className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-sm hover:bg-indigo-700 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-6 h-6 text-white"
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </Link>
+            <div>
+              <h1 className="text-xl font-bold text-gray-800">Read More</h1>
+              <p className="text-xs text-gray-500">Back to all articles</p>
+            </div>
+          </div>
+        </header>
+        <div className="mb-6">
+          <h1 className="text-4xl font-bold mb-4 leading-tight text-gray-900">
+            {frontmatter.title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            {frontmatter.mood && (
+              <span
+                className={`px-3 py-1 text-[10px] font-medium rounded-full ${
+                  getMoodColor(frontmatter.mood).bg
+                } ${getMoodColor(frontmatter.mood).text}`}
+              >
+                {frontmatter.mood}
+              </span>
+            )}
+            {frontmatter.tags &&
+              Array.isArray(frontmatter.tags) &&
+              frontmatter.tags.map(tag => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 text-[10px] font-medium rounded-full bg-gray-50 text-gray-600 border border-gray-100"
+                >
+                  {tag}
+                </span>
+              ))}
+          </div>
+
+          <div className="w-full h-[1px] bg-gray-100 mb-1"></div>
+
+          <div className="flex justify-between gap-2 text-xs text-gray-500">
+            {frontmatter.author && <span className="font-medium">By {frontmatter.author}</span>}
+
             {frontmatter.date && (
               <time dateTime={frontmatter.date}>
                 {new Date(frontmatter.date).toLocaleDateString("en-US", {
@@ -84,36 +160,16 @@ export default async function BlogPage({ params }) {
               </time>
             )}
           </div>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {frontmatter.mood && (
-              <span className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800">
-                {frontmatter.mood}
-              </span>
-            )}
-            {frontmatter.tags &&
-              Array.isArray(frontmatter.tags) &&
-              frontmatter.tags.map(tag => (
-                <span
-                  key={tag}
-                  className=" px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800"
-                >
-                  {tag}
-                </span>
-              ))}
-          </div>
-        </header>
+        </div>
 
         {/* remember, rendernya pake content!*/}
-        <div className="prose prose-lg max-w-none">
-          <div
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: htmlContent }}
-          />
-          {/* <MDXRemote content={htmlContent} /> */}
+        <div className="prose prose-lg max-w-none text-sm whitespace-pre-line w-fit">
+          <MarkDownRenderer content={content} />
         </div>
       </article>
     );
   } catch (error) {
+    console.log(error);
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-red-500">Error Loading Blog Post</h1>

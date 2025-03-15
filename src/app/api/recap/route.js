@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
 import { OpenAI } from "openai";
 import { RECAP_SYSTEM_PROMPT } from "@/utils/prompts/recapSystemPrompt";
+import { hasSubmittedMood } from "@/utils/hasSubmittedMood";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,10 +13,8 @@ export async function POST(request) {
     // Get the session ID from the cookie
     const cookieStore = await cookies();
     const sessionId = cookieStore.get("sessionId")?.value;
-    console.log("Session ID from cookie:", sessionId);
 
     if (!sessionId) {
-      console.log("No sessionId cookie found");
       return new Response(JSON.stringify({ error: "No active session found" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
@@ -27,10 +26,8 @@ export async function POST(request) {
       where: { id: sessionId },
       include: { user: true },
     });
-    console.log("Found session:", session);
 
     if (!session) {
-      console.log("No session row in DB for that sessionId");
       return new Response(JSON.stringify({ error: "Invalid session" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
@@ -39,16 +36,34 @@ export async function POST(request) {
 
     // Check if session is expired
     if (session.expires <= new Date()) {
-      console.log("Session is expired. Expires at:", session.expires);
       return new Response(JSON.stringify({ error: "Session expired" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Parse request body
-    const { messages, emotionContext } = await request.json();
     const userId = session.user.id;
+
+    // Check if user has already submitted a mood today and if they already have a journal
+    const { hasSubmitted, data: moodData } = await hasSubmittedMood(userId);
+
+    if (!hasSubmitted) {
+      return new Response(JSON.stringify({ error: "Please set your mood for today first" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if a journal already exists for today's mood
+    if (moodData.journal) {
+      return new Response(JSON.stringify({ error: "Journal entry already exists for today" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Parse request body
+    const { messages } = await request.json();
 
     // Validate that we have message to summarize
     if (!messages || messages.length < 2) {
@@ -63,35 +78,19 @@ export async function POST(request) {
       );
     }
 
-    // Look up the emotion by name
-    const emotionRecord = await prisma.emotion.findUnique({
-      where: { name: emotionContext },
-    });
-    if (!emotionRecord) {
-      console.log("No emotion record found for:", emotionContext);
-      return new Response(JSON.stringify({ error: "Emotion not found" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Create a new MoodEntry
-    const moodEntry = await prisma.moodEntry.create({
-      data: {
-        userId,
-        emotionId: BigInt(emotionRecord.id),
-      },
-    });
-
     // Generate recap via OpenAI
     const recapPrompt = {
       role: "system",
       content: RECAP_SYSTEM_PROMPT,
     };
 
+    const validMessages = messages.filter(msg =>
+      ["system", "assistant", "user", "function", "tool", "developer"].includes(msg.role)
+    );
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
-      messages: [recapPrompt, ...messages],
+      messages: [recapPrompt, ...validMessages],
     });
 
     const summary = response.choices[0].message.content;
@@ -101,13 +100,13 @@ export async function POST(request) {
       data: {
         recap: summary,
         userId,
-        emotionId: BigInt(emotionRecord.id),
+        emotionId: moodData.emotion.id,
       },
     });
 
     // Update the MoodEntry to reference the JournalAI record
     const updatedMoodEntry = await prisma.moodEntry.update({
-      where: { id: moodEntry.id },
+      where: { id: moodData.id },
       data: { journalId: journalRecord.id },
     });
 

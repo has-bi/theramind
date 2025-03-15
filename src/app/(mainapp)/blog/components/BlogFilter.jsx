@@ -1,36 +1,53 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function BlogFilter({ moods, selectedMood }) {
+export default function BlogFilter({ moods, selectedMood, defaultMood }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    // Only run once when component mounts and if there's no mood already selected
+    if (!isInitialized && !searchParams.get("mood") && defaultMood) {
+      // Verify the default mood exists in our options
+      if (moods.includes(defaultMood)) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("mood", defaultMood);
+        router.replace(`/blog?${params.toString()}`, { scroll: false }); // Changed from push to replace
+      }
+      setIsInitialized(true);
+    } else if (!isInitialized) {
+      setIsInitialized(true);
+    }
+  }, [defaultMood, isInitialized, moods, router, searchParams]);
 
   const handleMoodChange = e => {
     const mood = e.target.value;
+    const params = new URLSearchParams(searchParams.toString());
 
-    const params = new URLSearchParams(searchParams);
     if (mood) {
       params.set("mood", mood);
     } else {
       params.delete("mood");
     }
 
-    router.push(`/blog?${params.toString()}`);
+    router.replace(`/blog?${params.toString()}`, { scroll: false }); // Changed from push to replace
   };
 
   return (
     <div className="mb-8">
       <label htmlFor="mood-filter" className="block text-sm font-medium mb-2">
-        Filter by Mood:
+        How&apos;s your feeling today?
       </label>
       <select
         id="mood-filter"
-        value={selectedMood}
+        value={selectedMood || ""}
         onChange={handleMoodChange}
-        className="w-full md:w-64 p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+        className="w-full md:w-64 p-2 rounded-md focus:ring-2 focus:ring-indigo-600 shadow-md"
       >
-        <option value="">All Moods</option>
+        <option value="">Top Mood</option>
         {moods.map(mood => (
           <option key={mood} value={mood}>
             {mood.charAt(0).toUpperCase() + mood.slice(1)}

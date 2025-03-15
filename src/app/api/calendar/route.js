@@ -31,13 +31,14 @@ export async function GET(request) {
 
     const moodEntries = await prisma.moodEntry.findMany({
       where: { userId: userId },
-      include: { emotion: true },
+      include: { emotion: true, journalAI: true },
       orderBy: { createdAt: "asc" },
     });
 
     const CalendarMoodData = moodEntries.map(entry => ({
       createdAt: entry.createdAt,
       emotionName: entry.emotion.name,
+      journalAI: entry.journalAI.recap,
     }));
 
     return new Response(JSON.stringify(CalendarMoodData), {
