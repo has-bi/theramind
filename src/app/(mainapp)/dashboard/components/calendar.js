@@ -1,9 +1,15 @@
 "use client";
 
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageDetails from "./pagedetails";
-import { convertToUTC7 } from "@/utils/dateTime";
+import {
+  convertToUTC7,
+  formatDateStringUTC7,
+  getCurrentUTC7Date,
+  getCurrentUTC7Month,
+  getCurrentUTC7Year,
+} from "@/utils/dateTime";
 
 export default function Calendar({ currentDate, moodData, onChangeMonth, onDateClick }) {
   const MOOD_COLORS = {
@@ -21,19 +27,33 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
     loved: "bg-mood-loved",
   };
 
+  // Log timezone debug info once on mount
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      const now = new Date();
+      console.log("[Calendar] Current date info:");
+      console.log(`  JS Date: ${now.toString()}`);
+      console.log(`  ISO: ${now.toISOString()}`);
+      console.log(`  Local time: ${now.toLocaleString()}`);
+
+      const utc7Now = convertToUTC7(now);
+      console.log(`  UTC+7: ${utc7Now.toUTCString()}`);
+      console.log(`  UTC+7 date: ${utc7Now.getUTCDate()}`);
+      console.log(`  UTF+7 formatted: ${formatDateStringUTC7(now)}`);
+
+      // Check if today is in moodData
+      const todayStr = formatDateStringUTC7(now);
+      console.log(`  Today's key: ${todayStr}`);
+      console.log(`  Today in moodData: ${moodData[todayStr] ? "Yes" : "No"}`);
+    }
+  }, [moodData]);
+
   // Convert current date from input to UTC+7 for display
   const utc7CurrentDate = convertToUTC7(currentDate);
 
   const isCurrentDate = dateString => {
-    // Get today's date in UTC+7
-    const today = new Date();
-    const utc7Today = convertToUTC7(today);
-
-    const todayString = `${utc7Today.getFullYear()}-${String(utc7Today.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}-${String(utc7Today.getDate()).padStart(2, "0")}`;
-
+    // Create today's date string in UTC+7
+    const todayString = formatDateStringUTC7(new Date());
     return dateString === todayString;
   };
 
@@ -43,43 +63,44 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
 
   const generateCalendarDays = () => {
     // Use the UTC+7 adjusted date for calendar generation
-    const year = utc7CurrentDate.getFullYear();
-    const month = utc7CurrentDate.getMonth();
+    const year = utc7CurrentDate.getUTCFullYear();
+    const month = utc7CurrentDate.getUTCMonth();
     const days = [];
 
     // Previous month days
-    const firstDay = new Date(year, month, 1);
-    const utc7FirstDay = convertToUTC7(firstDay);
-    const firstDayOfWeek = utc7FirstDay.getDay();
+    const firstDay = new Date(Date.UTC(year, month, 1));
+    const dayOfWeek = convertToUTC7(firstDay).getUTCDay();
 
-    const lastDayPrevMonth = new Date(year, month, 0);
-    const utc7LastDayPrevMonth = convertToUTC7(lastDayPrevMonth);
-    const prevMonthLastDay = utc7LastDayPrevMonth.getDate();
+    // Adjust for Sunday as first day (0-indexed)
+    const firstDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
 
-    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-      const day = prevMonthLastDay - i;
-      const prevMonth = month === 0 ? 12 : month;
+    if (firstDayOfWeek > 0) {
+      const prevMonth = month === 0 ? 11 : month - 1;
       const prevYear = month === 0 ? year - 1 : year;
-      const dateString = formatDateString(prevMonth === 12 ? prevYear : year, prevMonth, day);
+      const prevMonthDays = new Date(Date.UTC(prevYear, prevMonth + 1, 0)).getUTCDate();
 
-      days.push({
-        day,
-        dateString,
-        mood: moodData[dateString],
-        isCurrentMonth: false,
-      });
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        const day = prevMonthDays - firstDayOfWeek + i + 1;
+        const prevMonthPadded = String(prevMonth + 1).padStart(2, "0");
+        const dayPadded = String(day).padStart(2, "0");
+        const dateString = `${prevMonth === 11 ? prevYear : year}-${prevMonthPadded}-${dayPadded}`;
+
+        days.push({
+          day,
+          dateString,
+          mood: moodData[dateString],
+          isCurrentMonth: false,
+        });
+      }
     }
 
     // Current month days
-    const lastDay = new Date(year, month + 1, 0);
-    const utc7LastDay = convertToUTC7(lastDay);
+    const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 
-    for (let day = 1; day <= utc7LastDay.getDate(); day++) {
-      const dateString = formatDateString(
-        utc7CurrentDate.getFullYear(),
-        utc7CurrentDate.getMonth() + 1,
-        day
-      );
+    for (let day = 1; day <= daysInMonth; day++) {
+      const monthPadded = String(month + 1).padStart(2, "0");
+      const dayPadded = String(day).padStart(2, "0");
+      const dateString = `${year}-${monthPadded}-${dayPadded}`;
 
       days.push({
         day,
@@ -89,21 +110,26 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
       });
     }
 
-    // Next month days
-    const lastDayOfWeek = utc7LastDay.getDay();
-    const daysToAdd = 6 - lastDayOfWeek;
+    // Next month days - fill to complete the grid (6 rows x 7 days = 42 cells total)
+    const totalCellsNeeded = 42;
+    const cellsToAdd = totalCellsNeeded - days.length;
 
-    for (let i = 1; i <= daysToAdd; i++) {
-      const nextMonth = month === 11 ? 1 : month + 2;
+    if (cellsToAdd > 0) {
+      const nextMonth = month === 11 ? 0 : month + 1;
       const nextYear = month === 11 ? year + 1 : year;
-      const dateString = formatDateString(nextMonth === 1 ? nextYear : year, nextMonth, i);
 
-      days.push({
-        day: i,
-        dateString,
-        mood: moodData[dateString],
-        isCurrentMonth: false,
-      });
+      for (let day = 1; day <= cellsToAdd; day++) {
+        const nextMonthPadded = String(nextMonth + 1).padStart(2, "0");
+        const dayPadded = String(day).padStart(2, "0");
+        const dateString = `${nextMonth === 0 ? nextYear : year}-${nextMonthPadded}-${dayPadded}`;
+
+        days.push({
+          day,
+          dateString,
+          mood: moodData[dateString],
+          isCurrentMonth: false,
+        });
+      }
     }
 
     return days;
@@ -136,7 +162,7 @@ export default function Calendar({ currentDate, moodData, onChangeMonth, onDateC
           {utc7CurrentDate.toLocaleString("default", {
             month: "long",
             year: "numeric",
-            timeZone: "Asia/Bangkok", // Use Bangkok timezone for UTC+7
+            timeZone: "Etc/GMT-7", // Use Etc/GMT-7 timezone for UTC+7
           })}
         </div>
         <button
