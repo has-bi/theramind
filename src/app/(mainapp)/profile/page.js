@@ -176,11 +176,10 @@ export default function ProfilePage() {
                 onSubmit={handleSubmit}
                 initialData={profileData}
               />
-            </div>
-
-            {/* Logout Button */}
-            <div className="flex justify-end">
-              <LogoutButton />
+              {/* Logout Button */}
+              <div className="flex justify-end">
+                <LogoutButton />
+              </div>
             </div>
           </>
         )}
