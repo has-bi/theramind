@@ -32,18 +32,18 @@ export default async function BlogPage({ searchParams }) {
 
   return (
     <div className="mobile-container bg-white min-h-screen relative overflow-hidden">
-      <header className="px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
+      <header className="px-4 py-3 bg-white rounded-b-2xl border-b border-gray-100 mb-4 shadow-sm">
         <div className="flex items-center">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-sm">
+          <div className="w-9 h-9 rounded-lg bg-mood-stressed flex items-center justify-center mr-2 shadow-sm">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="currentColor"
+              stroke="white"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="w-6 h-6 text-white"
+              className="w-5 h-5 "
             >
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14 2 14 8 20 8" />
