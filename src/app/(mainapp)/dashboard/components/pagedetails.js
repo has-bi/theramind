@@ -128,7 +128,7 @@ export default function PageDetails({ isOpen, onClose, date, moodData }) {
   // Use createPortal to render modal outside of component hierarchy
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/30 backdrop-blur-sm transition-all duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-gray-900/30 backdrop-blur-sm transition-all duration-200"
       onClick={e => {
         // Close modal when clicking the backdrop
         if (e.target === e.currentTarget) {
@@ -136,11 +136,11 @@ export default function PageDetails({ isOpen, onClose, date, moodData }) {
         }
       }}
     >
-      <div className="relative w-full max-w-md p-6 bg-white rounded-2xl shadow-lg transition-transform duration-200 transform scale-100">
+      <div className="relative w-full max-w-md p-4 bg-white rounded-xl shadow-lg transition-transform duration-200 transform scale-100">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1 rounded-full hover:bg-gray-100 transition-colors"
+          className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
           aria-label="Close"
         >
           <svg
@@ -160,46 +160,46 @@ export default function PageDetails({ isOpen, onClose, date, moodData }) {
         </button>
 
         {/* Modal content */}
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Mood Details</h2>
+        <div className="mb-3">
+          <h2 className="text-lg font-bold text-gray-800">Mood Details</h2>
           <p className="text-sm text-gray-500">{formattedDate}</p>
         </div>
 
         {/* Mood info */}
         <div
-          className={`${currentEmotionColors.bg} p-4 rounded-xl mb-4 ${currentEmotionColors.border}`}
+          className={`${currentEmotionColors.bg} p-3 rounded-lg mb-3 ${currentEmotionColors.border}`}
         >
           <div className="flex items-center">
             <div
-              className={`h-12 w-12 ${currentEmotionColors.iconBg} rounded-full flex items-center justify-center mr-3`}
+              className={`h-10 w-10 ${currentEmotionColors.iconBg} rounded-full flex items-center justify-center mr-3`}
             >
               <Image
                 src={getEmotionImagePath(emotionName)}
                 alt={emotionName || "Mood"}
-                width={28}
-                height={28}
+                width={24}
+                height={24}
                 className="object-contain"
               />
             </div>
             <div>
-              <p className="text-sm text-gray-500">You were feeling</p>
-              <p className="text-lg font-semibold text-gray-800 capitalize">{emotionName}</p>
+              <p className="text-xs text-gray-500">You were feeling</p>
+              <p className="text-base font-semibold text-gray-800 capitalize">{emotionName}</p>
             </div>
           </div>
         </div>
 
         {/* Journal recap if available */}
         {moodData?.recap && moodData.recap !== "No recap available" && (
-          <div className="mb-4">
-            <h3 className="text-md font-medium text-gray-700 mb-2">Journal Entry</h3>
-            <div className="bg-gray-50 p-4 rounded-xl text-gray-700 text-sm max-h-60 overflow-y-auto">
+          <div className="mb-3">
+            <h3 className="text-sm font-medium text-gray-700 mb-1">Journal Entry</h3>
+            <div className="bg-gray-50 p-3 rounded-lg text-gray-700 text-xs max-h-56 overflow-y-auto">
               <p className="whitespace-pre-line">{moodData.recap}</p>
             </div>
           </div>
         )}
 
         {/* Created at time */}
-        <div className="text-xs text-gray-500 mt-4">
+        <div className="text-xs text-gray-500 mt-3">
           Recorded at {new Date(moodData.createdAt).toLocaleTimeString()}
         </div>
       </div>

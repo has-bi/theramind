@@ -57,7 +57,7 @@ export default function CalendarClient({ moodData }) {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="p-2 w-full">
       <Calendar
         currentDate={currentDate}
         moodData={moodData || {}}
