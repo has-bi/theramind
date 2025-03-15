@@ -1,3 +1,5 @@
+"use server";
+
 import { getAllPosts, getAllMoods, getPostsByMood } from "@/utils/blog";
 import Link from "next/link";
 import BlogFilter from "./components/BlogFilter";

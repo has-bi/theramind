@@ -15,26 +15,25 @@ export default function BlogFilter({ moods, selectedMood, defaultMood }) {
       if (moods.includes(defaultMood)) {
         const params = new URLSearchParams(searchParams.toString());
         params.set("mood", defaultMood);
-        router.push(`/blog?${params.toString()}`, { scroll: false });
+        router.replace(`/blog?${params.toString()}`, { scroll: false }); // Changed from push to replace
       }
       setIsInitialized(true);
     } else if (!isInitialized) {
-      // Mark as initialized even if we don't set a default mood
       setIsInitialized(true);
     }
   }, [defaultMood, isInitialized, moods, router, searchParams]);
 
   const handleMoodChange = e => {
     const mood = e.target.value;
-
     const params = new URLSearchParams(searchParams.toString());
+
     if (mood) {
       params.set("mood", mood);
     } else {
       params.delete("mood");
     }
 
-    router.push(`/blog?${params.toString()}`);
+    router.replace(`/blog?${params.toString()}`, { scroll: false }); // Changed from push to replace
   };
 
   return (
@@ -48,7 +47,7 @@ export default function BlogFilter({ moods, selectedMood, defaultMood }) {
         onChange={handleMoodChange}
         className="w-full md:w-64 p-2 rounded-md focus:ring-2 focus:ring-indigo-600 shadow-md"
       >
-        <option value="">Top Moods</option>
+        <option value="">Top Mood</option>
         {moods.map(mood => (
           <option key={mood} value={mood}>
             {mood.charAt(0).toUpperCase() + mood.slice(1)}

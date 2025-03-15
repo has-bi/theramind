@@ -1,9 +1,11 @@
+"use server";
+
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { MarkDownRenderer } from "../components/markdown-renderer";
 import getMoodColor from "@/utils/getMoodColor";
-import Link from "next/link"; // Add this import at the top
+import Link from "next/link";
 
 // Utility constants and functions
 const BLOG_CONTENT_PATH = path.join(process.cwd(), "src/app/(mainapp)/blog/content");
@@ -28,7 +30,7 @@ const findFileBySlug = slug => {
 };
 
 // Generate static params for all MDX files
-export function generateStaticParams() {
+export async function generateStaticParams() {
   const files = fs.readdirSync(BLOG_CONTENT_PATH);
 
   return files
@@ -92,10 +94,10 @@ export default async function BlogPage({ params }) {
 
     return (
       <article className="mobile-container w-full max-w-[480px] bg-white min-h-screen px-4">
-        <header className="px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
+        <header className="mx-[-16px] px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
           <div className="flex items-center">
             <Link
-              href="/blog"
+              href="/blog?mood=all"
               className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-sm hover:bg-indigo-700 transition-colors"
             >
               <svg

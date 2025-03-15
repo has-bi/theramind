@@ -2,7 +2,6 @@
 import { useActionState } from "react";
 import { loginAction } from "./action";
 import { OauthButton } from "../_components/oauthbutton";
-import Image from "next/image";
 import { useState } from "react";
 
 export default function Page() {
@@ -122,7 +121,7 @@ export default function Page() {
             <div className="w-full border-t border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-3 bg-white text-gray-500">or continue with</span>
+            <span className="px-3 bg-white text-gray-500">or</span>
           </div>
         </div>
 
