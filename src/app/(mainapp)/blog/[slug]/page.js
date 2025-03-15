@@ -1,8 +1,11 @@
+"use server";
+
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { MarkDownRenderer } from "../components/markdown-renderer";
 import getMoodColor from "@/utils/getMoodColor";
+import Link from "next/link";
 
 // Utility constants and functions
 const BLOG_CONTENT_PATH = path.join(process.cwd(), "src/app/(mainapp)/blog/content");
@@ -27,7 +30,7 @@ const findFileBySlug = slug => {
 };
 
 // Generate static params for all MDX files
-export function generateStaticParams() {
+export async function generateStaticParams() {
   const files = fs.readdirSync(BLOG_CONTENT_PATH);
 
   return files
@@ -90,11 +93,63 @@ export default async function BlogPage({ params }) {
     const { data: frontmatter, content } = matter(fileData.fileContents);
 
     return (
-      <article className="mobile-container w-full max-w-[480px] bg-white min-h-screen px-4 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{frontmatter.title}</h1>
-          <div className="flex justify-between text-sm text-gray-500 mt-12 mb-2">
-            {frontmatter.author && <span>By {frontmatter.author}</span>}
+      <article className="mobile-container w-full max-w-[480px] bg-white min-h-screen px-4">
+        <header className="mx-[-16px] px-5 py-4 bg-white rounded-b-3xl border-b border-gray-100 mb-6 shadow-sm">
+          <div className="flex items-center">
+            <Link
+              href="/blog?mood=all"
+              className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-sm hover:bg-indigo-700 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-6 h-6 text-white"
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </Link>
+            <div>
+              <h1 className="text-xl font-bold text-gray-800">Read More</h1>
+              <p className="text-xs text-gray-500">Back to all articles</p>
+            </div>
+          </div>
+        </header>
+        <div className="mb-6">
+          <h1 className="text-4xl font-bold mb-4 leading-tight text-gray-900">
+            {frontmatter.title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            {frontmatter.mood && (
+              <span
+                className={`px-3 py-1 text-[10px] font-medium rounded-full ${
+                  getMoodColor(frontmatter.mood).bg
+                } ${getMoodColor(frontmatter.mood).text}`}
+              >
+                {frontmatter.mood}
+              </span>
+            )}
+            {frontmatter.tags &&
+              Array.isArray(frontmatter.tags) &&
+              frontmatter.tags.map(tag => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 text-[10px] font-medium rounded-full bg-gray-50 text-gray-600 border border-gray-100"
+                >
+                  {tag}
+                </span>
+              ))}
+          </div>
+
+          <div className="w-full h-[1px] bg-gray-100 mb-1"></div>
+
+          <div className="flex justify-between gap-2 text-xs text-gray-500">
+            {frontmatter.author && <span className="font-medium">By {frontmatter.author}</span>}
+
             {frontmatter.date && (
               <time dateTime={frontmatter.date}>
                 {new Date(frontmatter.date).toLocaleDateString("en-US", {
@@ -105,28 +160,7 @@ export default async function BlogPage({ params }) {
               </time>
             )}
           </div>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {frontmatter.mood && (
-              <span
-                className={`px-3 py-1 text-xs rounded-full ${getMoodColor(frontmatter.mood).bg} ${
-                  getMoodColor(frontmatter.mood).text
-                }`}
-              >
-                {frontmatter.mood}
-              </span>
-            )}
-            {frontmatter.tags &&
-              Array.isArray(frontmatter.tags) &&
-              frontmatter.tags.map(tag => (
-                <span
-                  key={tag}
-                  className=" px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800"
-                >
-                  {tag}
-                </span>
-              ))}
-          </div>
-        </header>
+        </div>
 
         {/* remember, rendernya pake content!*/}
         <div className="prose prose-lg max-w-none text-sm whitespace-pre-line w-fit">

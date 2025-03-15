@@ -29,10 +29,10 @@ export const MarkDownRenderer = ({ content }) => {
 
         // List styling with tighter spacing
         ul: props => {
-          return <ul {...props} className="my-1 pl-1" />;
+          return <ul {...props} className="mb-3 pl-1" />;
         },
         ol: props => {
-          return <ol {...props} className="my-1 pl-1 list-decimal list-inside" />;
+          return <ol {...props} className="mb-3 pl-1 list-decimal list-inside" />;
         },
         li: props => {
           return <li {...props} className="list-disc list-item list-inside mb-0" />;
@@ -40,7 +40,7 @@ export const MarkDownRenderer = ({ content }) => {
 
         // Paragraph styling with better line height
         p: props => {
-          return <p {...props} className="my-2 leading-relaxed text-left p-0 m-0" />;
+          return <p {...props} className="leading-relaxed text-left" />;
         },
 
         // Quote styling
