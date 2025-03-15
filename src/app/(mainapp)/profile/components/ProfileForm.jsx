@@ -51,60 +51,61 @@ export default function ProfileForm({ isEditing, onCancel, onSubmit }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="flex justify-center items-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
 
   if (!profileData) {
     return (
-      <div className="text-center text-red-600 p-4">
+      <div className="text-center text-red-600 p-3 text-sm">
         Unable to load profile data. Please try again later.
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Single column for mobile */}
+      <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">First Name</label>
           <input
             type="text"
             name="firstName"
             defaultValue={profileData.firstName}
             disabled={true}
-            className="w-full p-2 border rounded-md bg-gray-50 border-gray-200"
+            className="w-full p-2 text-sm border rounded-md bg-gray-50 border-gray-200"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Last Name</label>
           <input
             type="text"
             name="lastName"
             defaultValue={profileData.lastName}
             disabled={true}
-            className="w-full p-2 border rounded-md bg-gray-50 border-gray-200"
+            className="w-full p-2 text-sm border rounded-md bg-gray-50 border-gray-200"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <label className="block text-xs font-medium text-gray-700 mb-1">Email</label>
         <input
           type="email"
           name="email"
           defaultValue={profileData.email}
           disabled={true}
-          className="w-full p-2 border rounded-md bg-gray-50 border-gray-200"
+          className="w-full p-2 text-sm border rounded-md bg-gray-50 border-gray-200"
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Birth Date</label>
           <div className="flex flex-col">
             <input
               type="date"
@@ -112,28 +113,28 @@ export default function ProfileForm({ isEditing, onCancel, onSubmit }) {
               defaultValue={profileData.formattedBirthDate}
               max={new Date().toISOString().split("T")[0]} // Prevent future dates
               disabled={!isEditing}
-              className={`w-full p-2 border rounded-md ${
+              className={`w-full p-2 text-sm border rounded-md ${
                 isEditing
-                  ? "bg-white border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                  ? "bg-white border-gray-300 focus:ring-1 focus:ring-indigo-500"
                   : "bg-gray-50 border-gray-200"
               }`}
               required
             />
-            <span className="text-sm text-gray-500 mt-1">
+            <span className="text-xs text-gray-500 mt-1">
               Age: {calculateAge(profileData.birthDate)} years
             </span>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Gender</label>
           <select
             name="gender"
             defaultValue={profileData.gender}
             disabled={!isEditing}
-            className={`w-full p-2 border rounded-md ${
+            className={`w-full p-2 text-sm border rounded-md ${
               isEditing
-                ? "bg-white border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                ? "bg-white border-gray-300 focus:ring-1 focus:ring-indigo-500"
                 : "bg-gray-50 border-gray-200"
             }`}
             required
@@ -147,22 +148,22 @@ export default function ProfileForm({ isEditing, onCancel, onSubmit }) {
         </div>
       </div>
 
-      <div className="border-t border-gray-200 pt-6">
-        <div className="flex justify-end gap-4">
+      <div className="border-t border-gray-200 pt-4">
+        <div className="flex justify-end gap-2">
           {isEditing && (
             <>
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition"
+                className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+                className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
               >
-                Save Changes
+                Save
               </button>
             </>
           )}

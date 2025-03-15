@@ -1,3 +1,4 @@
+// Suggested update for app/(mainapp)/layout.js
 import React from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -24,11 +25,11 @@ export default async function Layout({ children }) {
 
   return (
     <>
-      {/* Main content dengan padding bottom untuk footer */}
-      <div className="pb-footer">{children}</div>
+      {/* Main content dengan padding bottom yang lebih spesifik untuk footer */}
+      <div className="pb-20">{children}</div>
 
-      {/* Footer menu - fixed di bagian bawah */}
-      <div className="fixed bottom-0 w-full max-w-[375px] z-50">
+      {/* Footer menu - fixed di bagian bawah dengan safe-area-inset untuk iOS */}
+      <div className="fixed bottom-0 w-full max-w-[375px] z-40 pb-safe">
         <FooterMenu />
       </div>
     </>

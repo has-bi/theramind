@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createMoodAction } from "./mood-Action";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,13 @@ export const EmojiForm = () => {
   const [pending, setPending] = useState(false);
   const [formError, setFormError] = useState(null);
   const router = useRouter();
+
+  // Clear any stale submission flags on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("fresh_mood_submission");
+    }
+  }, []);
 
   const emotions = [
     {
@@ -114,6 +121,7 @@ export const EmojiForm = () => {
 
     try {
       setPending(true);
+      console.log("Submitting mood:", selectedEmotion.label);
 
       // Create FormData
       const formData = new FormData();
@@ -124,26 +132,40 @@ export const EmojiForm = () => {
 
       // Save to localStorage
       if (typeof window !== "undefined") {
+        // First, save the emotion context
         localStorage.setItem("emotion_context", selectedEmotion.value);
         localStorage.setItem("emotion_id", selectedEmotion.id);
+
+        // Critically important: set the fresh submission flag
+        // This will be used in hasSubmittedMood.js to bypass checks
+        localStorage.setItem("fresh_mood_submission", "true");
+
+        // Create a timestamp to help with debugging
+        localStorage.setItem("mood_submission_time", Date.now().toString());
       }
 
       // Call server action
       const result = await createMoodAction(null, formData);
+      console.log("Server response:", result);
 
-      if (result?.success) {
-        // Programmatically navigate based on the redirect property
-        if (result.redirect) {
-          window.location.href = result.redirect;
-        } else {
-          router.push("/chat");
-        }
-      } else if (result?.alreadySubmitted) {
-        router.push("/mood");
+      if (result?.error && result?.alreadySubmitted) {
+        console.log("Already submitted mood, redirecting to mood page");
+        // If a mood was already submitted today, go to the mood page
+        window.location.replace("/mood");
+        return;
       } else if (result?.error) {
+        // If there was an error but not already submitted, show the error
         setFormError(result.error);
+        return;
       }
+
+      // Handle successful submission - FORCE redirect to chat
+      console.log("Successfully submitted mood, forcing redirect to chat");
+
+      // Use a hard redirect to /chat that skips any client-side routing
+      window.location.replace("/chat");
     } catch (error) {
+      console.error("Error submitting mood:", error);
       setFormError(error.message || "An unexpected error occurred");
     } finally {
       setPending(false);
