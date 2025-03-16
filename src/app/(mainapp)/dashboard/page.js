@@ -5,7 +5,12 @@ import { getMoodData } from "@/app/api/calendar/getMoodData";
 import DashboardClient from "./components/DashboardClient";
 import CalendarView from "./calendarView";
 import { Suspense } from "react";
-import { convertToUTC7, getUTC7StartOfDay, getUTC7EndOfDay } from "@/utils/dateTime";
+import {
+  convertToUTC7,
+  getUTC7StartOfDay,
+  getUTC7EndOfDay,
+  formatDateStringUTC7,
+} from "@/utils/dateTime";
 import { unstable_cache } from "next/cache";
 
 // Placeholder while the calendar is loading
@@ -74,7 +79,7 @@ const getEmotions = unstable_cache(
   { revalidate: 3600 } // Cache for 1 hour
 );
 
-// Optimized function to calculate streak - handles UUID userId
+// Optimized function to calculate streak - handles UUID userId with proper UTC+7 timezone
 async function calculateStreak(userId) {
   // UUID validation - must be a string
   if (typeof userId !== "string" || !userId) {
@@ -88,16 +93,23 @@ async function calculateStreak(userId) {
   });
 
   const now = new Date();
-  const today = getUTC7StartOfDay(now);
+  // Format today's date properly in UTC+7
+  const todayStr = formatDateStringUTC7(now);
+  console.log("Today's date (UTC+7):", todayStr);
 
   // Get last 100 days of entries to calculate streak
-  const startDate = new Date(today);
+  const startDate = new Date(now);
   startDate.setDate(startDate.getDate() - 100);
 
   try {
+    // Get the entries with journals attached - complete entries only
     const entriesRaw = await prisma.moodEntry.findMany({
       where: {
-        userId: userId, // Keep as string UUID
+        userId: userId,
+        // Only count entries with journals as complete entries
+        journalAI: {
+          isNot: null,
+        },
         createdAt: {
           gte: startDate,
         },
@@ -117,58 +129,68 @@ async function calculateStreak(userId) {
       return 0;
     }
 
-    // Manually transform dates to ensure they're Date objects
-    const entries = entriesRaw.map(entry => ({
-      ...entry,
-      createdAt: new Date(entry.createdAt),
-    }));
+    // Format all dates to YYYY-MM-DD in UTC+7 timezone
+    const entryDates = entriesRaw.map(entry => formatDateStringUTC7(entry.createdAt));
 
-    // Convert all dates to UTC+7 day strings for comparison
-    const entryDates = entries.map(entry => {
-      const date = convertToUTC7(entry.createdAt);
-      return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-    });
+    // Log the first few formatted dates for debugging
+    logDebug("First few formatted dates:", entryDates.slice(0, 5));
 
     // Get unique days (in case of multiple entries per day)
-    const uniqueDays = [...new Set(entryDates)];
-    uniqueDays.sort().reverse(); // Sort in descending order
-
+    const uniqueDays = [...new Set(entryDates)].sort().reverse();
     logDebug("Unique days found", { count: uniqueDays.length, first: uniqueDays[0] });
 
-    // Calculate streak
+    // Calculate yesterday's date in UTC+7
+    const yesterdayDate = new Date(now);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterdayStr = formatDateStringUTC7(yesterdayDate);
+    console.log("Yesterday's date (UTC+7):", yesterdayStr);
+
+    // Initialize streak counter
     let streak = 0;
-    const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
 
-    // Check if there's an entry for today
-    const hasTodayEntry = uniqueDays[0] === todayStr;
-    if (hasTodayEntry) {
+    // Check if there's an entry for today or yesterday
+    if (uniqueDays.includes(todayStr)) {
+      // Start with today
+      console.log("Entry found for today");
       streak = 1;
-    } else if (uniqueDays.length > 0) {
-      // If first entry is yesterday, start streak at 1
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
 
-      if (uniqueDays[0] === yesterdayStr) {
-        streak = 1;
-      } else {
-        return 0; // No streak if most recent entry is not today or yesterday
+      // Check consecutive days before today
+      for (let i = 1; i < 100; i++) {
+        // Limit to 100 days max
+        const prevDate = new Date(now);
+        prevDate.setDate(prevDate.getDate() - i);
+        const prevDateStr = formatDateStringUTC7(prevDate);
+
+        if (uniqueDays.includes(prevDateStr)) {
+          streak++;
+          console.log(`Found entry for ${prevDateStr}, streak: ${streak}`);
+        } else {
+          console.log(`No entry found for ${prevDateStr}, breaking streak`);
+          break;
+        }
       }
-    }
+    } else if (uniqueDays.includes(yesterdayStr)) {
+      // Start with yesterday if no entry for today
+      console.log("No entry for today, but found entry for yesterday");
+      streak = 1;
 
-    // Count consecutive days
-    let i = 1;
-    while (i < uniqueDays.length && streak > 0) {
-      const currentDate = new Date(today);
-      currentDate.setDate(currentDate.getDate() - streak);
-      const expectedDateStr = `${currentDate.getFullYear()}-${currentDate.getMonth()}-${currentDate.getDate()}`;
+      // Check consecutive days before yesterday
+      for (let i = 1; i < 100; i++) {
+        // Limit to 100 days max
+        const prevDate = new Date(yesterdayDate);
+        prevDate.setDate(prevDate.getDate() - i);
+        const prevDateStr = formatDateStringUTC7(prevDate);
 
-      if (uniqueDays[i] === expectedDateStr) {
-        streak++;
-        i++;
-      } else {
-        break;
+        if (uniqueDays.includes(prevDateStr)) {
+          streak++;
+          console.log(`Found entry for ${prevDateStr}, streak: ${streak}`);
+        } else {
+          console.log(`No entry found for ${prevDateStr}, breaking streak`);
+          break;
+        }
       }
+    } else {
+      console.log("No entry for today or yesterday, streak is 0");
     }
 
     logDebug("Final streak count", { streak });
@@ -259,14 +281,17 @@ export default async function DashboardPage() {
           // Process queries in parallel
           try {
             const [todaysMoodEntryRaw, moodData, streakCount] = await Promise.all([
-              // Get today's mood
+              // Get today's mood - look for entries with journal
               prisma.moodEntry
                 .findFirst({
                   where: {
-                    userId: userId, // String UUID
+                    userId: userId,
                     createdAt: {
                       gte: utcStartOfDay,
                       lte: utcEndOfDay,
+                    },
+                    journalAI: {
+                      isNot: null,
                     },
                   },
                   include: {
@@ -304,16 +329,17 @@ export default async function DashboardPage() {
 
             // Get current month in UTC+7 timezone
             const utc7Now = convertToUTC7(now);
-            const currentMonth = utc7Now.getMonth();
-            const currentYear = utc7Now.getFullYear();
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const currentMonth = utc7Now.getUTCMonth();
+            const currentYear = utc7Now.getUTCFullYear();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getUTCDate();
 
             // Count moods for current month
             Object.entries(moodData).forEach(([date, mood]) => {
               const entryDate = new Date(date);
+              const utc7Date = convertToUTC7(entryDate);
               if (
-                entryDate.getMonth() === currentMonth &&
-                entryDate.getFullYear() === currentYear
+                utc7Date.getUTCMonth() === currentMonth &&
+                utc7Date.getUTCFullYear() === currentYear
               ) {
                 const emotionName = mood.emotionName;
                 moodCounts[emotionName] = (moodCounts[emotionName] || 0) + 1;
